@@ -4,13 +4,18 @@ import "./specify"
 
 func init() {
 	specify.Behavior("Math", func(it *specify.It) {
+		it.Should("add", func(expect *specify.Expect) {
+			expect.That(1 + 2).Should.Be(3);
+		});
 
-		it.Should("add integers", func(expect *specify.Expect) {
+		it.Should("multiply", func(expect *specify.Expect) {
+			expect.That(2 * 4).Should.Be(6);
+		});
+	});
 
-			expect.That(1 + 2).Should.Be(4);
-			expect.That("foo").Should.Be("bar");
-
-		})
-
-	})
+	specify.Behavior("Strings", func(it *specify.It) {
+		it.Should("concatenate", func(expect *specify.Expect) {
+			expect.That("foo" + "bar").Should.Be("bar")
+		});
+	});
 }
