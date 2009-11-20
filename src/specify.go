@@ -6,8 +6,15 @@ import(
 	"os";
 )
 
+type Runner interface {
+	Fail(string);
+	Failed() bool;
+	Pass();
+	Summary() string;
+}
+
 type Specification interface {
-	Run();
+	Run(Runner);
 	Describe(name string, description func());
 	It(name string, description func());
 	That(value Value) That;
@@ -19,11 +26,10 @@ type specification struct {
 	describes *list.List;
 }
 
-func (self *specification) Run() {
-	report := makeReport();
-	runList(self.describes, report);
-	fmt.Println(report.summary());
-	if report.failed > 0 {
+func (self *specification) Run(runner Runner) {
+	runList(self.describes, runner);
+	fmt.Println(runner.Summary());
+	if runner.Failed() {
 		os.Exit(1);
 	}
 }
@@ -67,8 +73,8 @@ func (self *describe) addIt(it *it) {
 	self.its.PushBack(it);
 }
 
-func (self *describe) run(report *report) {
-	runList(self.its, report);
+func (self *describe) run(runner Runner) {
+	runList(self.its, runner);
 }
 
 func (self *describe) String() string { return self.name; }
@@ -88,8 +94,8 @@ func (self *it) addThat(that That) {
 	self.thats.PushBack(that);
 }
 
-func (self *it) run(report *report) {
-	runList(self.thats, report);
+func (self *it) run(runner Runner) {
+	runList(self.thats, runner);
 }
 
 func (self *it) String() string { return self.name; }
@@ -115,12 +121,12 @@ func makeThat(describe *describe, it *it, value Value) That {
 	return &that{describe:describe, it:it, value:value};
 }
 
-func (self *that) run(report *report) {
+func (self *that) run(runner Runner) {
 	if pass,msg := self.block(self.value); pass {
-		report.pass();
+		runner.Pass();
 	} else {
 		msg = fmt.Sprintf("%v %v - %v", self.describe, self.it, msg);
-		report.fail(msg);
+		runner.Fail(msg);
 	}
 }
 
@@ -150,14 +156,14 @@ func (self *shouldNot) Be(expected Value) {
 	})
 }
 
-type runner interface {
-	run(*report);
+type test interface {
+	run(Runner);
 }
 
-func runList(list *list.List, report *report) {
+func runList(list *list.List, runner Runner) {
 	doList(list, func(item Value) {
-		runner,_ := item.(runner);
-		runner.run(report);
+		test,_ := item.(test);
+		test.run(runner);
 	});
 }
 
@@ -170,24 +176,23 @@ func doList(list *list.List, do func(Value)) {
 	}
 }
 
-type report struct {
+func DotRunner() Runner { return &dotRunner{failures:list.New()}; }
+
+type dotRunner struct {
 	passed, failed int;
 	failures *list.List;
 }
 
-func makeReport() *report {
-	return &report{failures:list.New()};
-}
+func (self *dotRunner) Failed() bool { return self.failed > 0; }
+func (self *dotRunner) Pass() { self.passed++; }
+func (self *dotRunner) total() int { return self.passed + self.failed; }
 
-func (self *report) pass() { self.passed++; }
-func (self *report) total() int { return self.passed + self.failed; }
-
-func (self *report) fail(msg string) {
+func (self *dotRunner) Fail(msg string) {
 	self.failures.PushBack(msg);
 	self.failed++;
 }
 
-func (self *report) summary() string {
+func (self *dotRunner) Summary() string {
 	if self.failed > 0 {
 		fmt.Println("\nFAILED TESTS:");
 		doList(self.failures, func(item Value) { fmt.Println("-", item) });

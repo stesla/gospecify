@@ -11,5 +11,6 @@ func initSpec() {
 }
 
 func main() {
-	spec.Run();
+	runner := specify.DotRunner();
+	spec.Run(runner);
 }
