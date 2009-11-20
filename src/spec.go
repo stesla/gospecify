@@ -1,7 +1,7 @@
-package spec
+package specify
 
 import "fmt"
 
 func Run() {
-	fmt.Println("0 specs run");
+	fmt.Println("Specs Would Run Here");
 }

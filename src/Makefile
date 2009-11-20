@@ -1,13 +1,16 @@
-PACKAGE=spec
+PACKAGE=specify
 TESTPROG=test_$(PACKAGE)
 
 include $(GOROOT)/src/Make.$(GOARCH)
 
 SRC=spec.go
 
-TEST_SRC=test_main.go
+TEST_SRC=$(wildcard *_spec.go)
 
 all: test
+
+clean:
+	rm -rf *.$O $(TESTPROG) $(PACKAGE).$O
 
 test: $(TESTPROG)
 	./$(TESTPROG)
