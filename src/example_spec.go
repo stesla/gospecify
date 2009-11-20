@@ -5,7 +5,7 @@ func init() {
 
 	spec.Describe("Math", func() {
 		spec.It("adds", func() {
-			spec.That(1 + 1).Should().Be(3);
+			spec.That(1 + 1).Should().Be(2);
 		});
 
 		spec.It("multiplies", func() {
@@ -16,7 +16,7 @@ func init() {
 
 	spec.Describe("String", func() {
 		spec.It("concatenates", func() {
-			spec.That("Doctor" + "Donna").Should().Be("Donna");
+			spec.That("Doctor" + "Donna").Should().Be("DoctorDonna");
 			spec.That("foo" + "bar").ShouldNot().Be("bar");
 		});
 	});
