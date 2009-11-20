@@ -6,10 +6,13 @@ import(
 	"os";
 )
 
+type Test func() (bool, os.Error);
+
 type Runner interface {
-	Fail(string);
+	Fail(os.Error);
 	Failed() bool;
 	Pass();
+	Run(Test);
 	Summary() string;
 }
 
@@ -100,8 +103,10 @@ func (self *it) run(runner Runner) {
 
 func (self *it) String() string { return self.name; }
 
+type ValueTest func(Value) (bool, os.Error);
+
 type That interface {
-	SetBlock(func(Value) (bool, string));
+	SetBlock(ValueTest);
 	Should() Matcher;
 	ShouldNot() Matcher;
 }
@@ -114,7 +119,7 @@ type that struct {
 	*describe;
 	*it;
 	value Value;
-	block func(Value) (bool, string);
+	block ValueTest;
 }
 
 func makeThat(describe *describe, it *it, value Value) That {
@@ -122,37 +127,32 @@ func makeThat(describe *describe, it *it, value Value) That {
 }
 
 func (self *that) run(runner Runner) {
-	if pass,msg := self.block(self.value); pass {
-		runner.Pass();
-	} else {
-		msg = fmt.Sprintf("%v %v - %v", self.describe, self.it, msg);
-		runner.Fail(msg);
-	}
+	runner.Run(func()(bool, os.Error) { return self.block(self.value) });
 }
 
-func (self *that) SetBlock(block func(Value) (bool, string)) { self.block = block; }
+func (self *that) SetBlock(block ValueTest) { self.block = block; }
 func (self *that) Should() Matcher  { return &should{self}; }
 func (self *that) ShouldNot() Matcher { return &shouldNot{self}; }
 
 type should struct { that That }
 func (self *should) Be(expected Value) {
-	self.that.SetBlock(func(actual Value) (bool, string) {
+	self.that.SetBlock(func(actual Value) (bool, os.Error) {
 		if actual != expected {
 			error := fmt.Sprintf("expected `%v` to be `%v`", actual, expected);
-			return false, error;
+			return false, os.NewError(error);
 		}
-		return true, "";
+		return true, nil;
 	});
 }
 
 type shouldNot struct { that That }
 func (self *shouldNot) Be(expected Value) {
-	self.that.SetBlock(func(actual Value) (bool, string) {
+	self.that.SetBlock(func(actual Value) (bool, os.Error) {
 		if actual == expected {
 			error := fmt.Sprintf("expected `%v` not to be `%v`", actual, expected);
-			return false, error;
+			return false, os.NewError(error);
 		}
-		return true, "";
+		return true, nil;
 	})
 }
 
@@ -187,8 +187,8 @@ func (self *dotRunner) Failed() bool { return self.failed > 0; }
 func (self *dotRunner) Pass() { self.passed++; }
 func (self *dotRunner) total() int { return self.passed + self.failed; }
 
-func (self *dotRunner) Fail(msg string) {
-	self.failures.PushBack(msg);
+func (self *dotRunner) Fail(err os.Error) {
+	self.failures.PushBack(err);
 	self.failed++;
 }
 
@@ -199,4 +199,12 @@ func (self *dotRunner) Summary() string {
 		fmt.Println("");
 	}
 	return fmt.Sprintf("Passed: %v Failed: %v Total: %v", self.passed, self.failed, self.total());
+}
+
+func (self *dotRunner) Run(test Test) {
+	if pass,err := test(); pass {
+		self.Pass();
+	} else {
+		self.Fail(err);
+	}
 }
