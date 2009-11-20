@@ -128,9 +128,9 @@ func (self *that) SetBlock(block func(Value) (bool, string)) { self.block = bloc
 func (self *that) Should() Matcher  { return &should{self}; }
 func (self *that) ShouldNot() Matcher { return &shouldNot{self}; }
 
-type should struct { That }
+type should struct { that That }
 func (self *should) Be(expected Value) {
-	self.That.SetBlock(func(actual Value) (bool, string) {
+	self.that.SetBlock(func(actual Value) (bool, string) {
 		if actual != expected {
 			error := fmt.Sprintf("expected `%v` to be `%v`", actual, expected);
 			return false, error;
@@ -139,9 +139,9 @@ func (self *should) Be(expected Value) {
 	});
 }
 
-type shouldNot struct { That }
+type shouldNot struct { that That }
 func (self *shouldNot) Be(expected Value) {
-	self.That.SetBlock(func(actual Value) (bool, string) {
+	self.that.SetBlock(func(actual Value) (bool, string) {
 		if actual == expected {
 			error := fmt.Sprintf("expected `%v` not to be `%v`", actual, expected);
 			return false, error;
