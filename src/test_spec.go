@@ -3,19 +3,19 @@ package main
 import "./specify"
 
 func init() {
-	specify.Behavior("Math", func(it *specify.It) {
-		it.Should("add", func(expect *specify.Expect) {
-			expect.That(1 + 2).Should.Be(3);
+	specify.Behavior("Math", func() {
+		specify.It("adds", func() {
+			specify.That(1 + 2).Should.Be(3);
 		});
 
-		it.Should("multiply", func(expect *specify.Expect) {
-			expect.That(2 * 4).Should.Be(6);
+		specify.It("multiplies", func() {
+			specify.That(2 * 4).Should.Be(6);
 		});
 	});
 
-	specify.Behavior("Strings", func(it *specify.It) {
-		it.Should("concatenate", func(expect *specify.Expect) {
-			expect.That("foo" + "bar").Should.Be("bar")
+	specify.Behavior("Strings", func() {
+		specify.It("concatenates", func() {
+			specify.That("foo" + "bar").Should.Be("bar")
 		});
 	});
 }

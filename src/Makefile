@@ -3,7 +3,7 @@ TESTPROG=test_$(PACKAGE)
 
 include $(GOROOT)/src/Make.$(GOARCH)
 
-SRC=spec.go
+SRC=specify.go
 
 TEST_SRC=$(wildcard *_spec.go)
 
