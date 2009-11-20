@@ -82,12 +82,12 @@ func (self *it) run(report *report) {
 }
 
 type that struct {
-	Should matcher;
+	Should Matcher;
 }
 
 func makeThat(behavior *behavior, it *it, value Value) *that {
-	common := &common{behavior, it, value};
-	return &that{&should{common:common}};
+	matcher := &matcher{behavior:behavior, it:it, value:value};
+	return &that{&should{matcher:matcher}}
 }
 
 func (self *that) run(report *report) {
@@ -95,36 +95,33 @@ func (self *that) run(report *report) {
 	runner.run(report);
 }
 
-type matcher interface {
+type Matcher interface {
 	Be(Value);
 }
 
-type common struct {
+type matcher struct {
 	*behavior;
 	*it;
 	value Value;
-}
-
-type should struct {
-	*common;
 	block func() (bool, string);
 }
 
-func (self *should) Be(value Value) {
-	self.block = func() (bool, string) {
-		if self.common.value != value {
-			error := fmt.Sprintf("%v - %v - expected `%v` to be `%v`", self.common.behavior.name, self.common.it.name, self.common.value, value);
-			return false, error;
-		}
-		return true, "";
-	}
-}
-
-func (self *should) run(report *report) {
+func (self *matcher) run(report *report) {
 	if pass,msg := self.block(); pass {
 		report.pass();
 	} else {
 		report.fail(msg);
+	}
+}
+
+type should struct { *matcher }
+func (self *should) Be(value Value) {
+	self.matcher.block = func() (bool, string) {
+		if self.matcher.value != value {
+			error := fmt.Sprintf("%v - %v - expected `%v` to be `%v`", self.matcher.behavior.name, self.matcher.it.name, self.matcher.value, value);
+			return false, error;
+		}
+		return true, "";
 	}
 }
 
