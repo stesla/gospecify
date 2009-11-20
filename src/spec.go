@@ -44,7 +44,14 @@ type It interface {
 	Should(string, func(*Expect));
 }
 
-type expect struct {}
+type expect struct {
+	spec func(*Expect);
+}
+
+func (self expect) run() {
+	var e Expect = self;
+	self.spec(&e);
+}
 
 func (self expect) That(value interface {}) (result *That) {
 	result = &That{};
@@ -58,18 +65,12 @@ type it struct {
 }
 
 func (self it) Should(desc string, spec func(*Expect)) {
-	var e Expect = expect{};
-	self.expectations.PushBack(func() { spec(&e); });
+	e := expect{spec};
+	self.expectations.PushBack(e);
 }
 
 func (self it) run() {
-	iter := self.expectations.Iter();
-	for !closed(iter) {
-		item := <-iter;
-		if item == nil { break; }
-		test,_ := item.(func());
-		test();
-	}
+	runList(self.expectations);
 }
 
 func Behavior(item string, spec func(*It)) {
@@ -79,12 +80,20 @@ func Behavior(item string, spec func(*It)) {
 }
 
 func Run() {
-	iter := behaviors.Iter();
+	runList(behaviors);
+	os.Exit(exitCode);
+}
+
+type runner interface {
+	run();
+}
+
+func runList(l *list.List) {
+	iter := l.Iter();
 	for !closed(iter) {
 		item := <-iter;
 		if item == nil { break; }
-		i,_ := item.(it);
+		i,_ := item.(runner);
 		i.run();
 	}
-	os.Exit(exitCode);
 }
