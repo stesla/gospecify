@@ -27,8 +27,8 @@ func (self should) Be(value interface{}) {
 	}
 }
 
-func (self should) Failf(format string, v ...) {
-	fmt.Printf(format, v);
+func (self should) Failf(format string, args ...) {
+	fmt.Printf(format, args);
 	exitCode = 1;
 }
 
@@ -49,13 +49,13 @@ type expect struct {
 }
 
 func (self expect) run() {
-	var e Expect = self;
-	self.spec(&e);
+	var expect Expect = self;
+	self.spec(&expect);
 }
 
-func (self expect) That(value interface {}) (result *That) {
-	result = &That{};
-	result.Should = &should{value};
+func (self expect) That(value interface {}) (that *That) {
+	that = &That{};
+	that.Should = &should{value};
 	return;
 }
 
@@ -65,8 +65,8 @@ type it struct {
 }
 
 func (self it) Should(desc string, spec func(*Expect)) {
-	e := expect{spec};
-	self.expectations.PushBack(e);
+	expectation := expect{spec};
+	self.expectations.PushBack(expectation);
 }
 
 func (self it) run() {
@@ -74,9 +74,9 @@ func (self it) run() {
 }
 
 func Behavior(item string, spec func(*It)) {
-	var i It = it{item, list.New()};
-	spec(&i);
-	behaviors.PushBack(i);
+	var it It = it{item, list.New()};
+	spec(&it);
+	behaviors.PushBack(it);
 }
 
 func Run() {
@@ -93,7 +93,7 @@ func runList(l *list.List) {
 	for !closed(iter) {
 		item := <-iter;
 		if item == nil { break; }
-		i,_ := item.(runner);
-		i.run();
+		runner,_ := item.(runner);
+		runner.run();
 	}
 }
