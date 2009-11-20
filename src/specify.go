@@ -10,7 +10,7 @@ type Specification interface {
 	Run();
 	Describe(name string, description func());
 	It(name string, description func());
-	That(value Value) *That;
+	That(value Value) That;
 }
 
 type specification struct {
@@ -42,7 +42,7 @@ func (self *specification) It(name string, description func()) {
 
 type Value interface{}
 
-func (self *specification) That(value Value) (result *That) {
+func (self *specification) That(value Value) (result That) {
 	result = makeThat(self.currentDescribe, self.currentIt, value);
 	self.currentIt.addThat(result);
 	return;
@@ -82,7 +82,7 @@ func makeIt(name string) (result *it) {
 	return;
 }
 
-func (self *it) addThat(that *That) {
+func (self *it) addThat(that That) {
 	self.thats.PushBack(that);
 }
 
@@ -90,63 +90,59 @@ func (self *it) run(report *report) {
 	runList(self.thats, report);
 }
 
-type That struct {
-	Should Matcher;
-	ShouldNot Matcher;
-}
-
-func makeThat(describe *describe, it *it, value Value) *That {
-	matcher := &matcher{describe:describe, it:it, value:value};
-	return &That{
-		&should{matcher},
-		&shouldNot{matcher}
-	};
-}
-
-func (self *That) run(report *report) {
-	runner,_ := self.Should.(runner);
-	runner.run(report);
+type That interface {
+	SetBlock(func(Value) (bool, string));
+	Should() Matcher;
+	ShouldNot() Matcher;
 }
 
 type Matcher interface {
 	Be(Value);
 }
 
-type matcher struct {
+type that struct {
 	*describe;
 	*it;
 	value Value;
-	block func() (bool, string);
+	block func(Value) (bool, string);
 }
 
-func (self *matcher) run(report *report) {
-	if pass,msg := self.block(); pass {
+func makeThat(describe *describe, it *it, value Value) That {
+	return &that{describe:describe, it:it, value:value};
+}
+
+func (self *that) run(report *report) {
+	if pass,msg := self.block(self.value); pass {
 		report.pass();
 	} else {
 		report.fail(msg);
 	}
 }
 
-type should struct { *matcher }
-func (self *should) Be(value Value) {
-	self.matcher.block = func() (bool, string) {
-		if self.matcher.value != value {
-			error := fmt.Sprintf("%v - %v - expected `%v` to be `%v`", self.matcher.describe.name, self.matcher.it.name, self.matcher.value, value);
+func (self *that) SetBlock(block func(Value) (bool, string)) { self.block = block; }
+func (self *that) Should() Matcher  { return &should{self}; }
+func (self *that) ShouldNot() Matcher { return &shouldNot{self}; }
+
+type should struct { *that }
+func (self *should) Be(expected Value) {
+	self.that.SetBlock(func(actual Value) (bool, string) {
+		if actual != expected {
+			error := fmt.Sprintf("expected `%v` to be `%v`", actual, expected);
 			return false, error;
 		}
 		return true, "";
-	}
+	});
 }
 
-type shouldNot struct { *matcher }
-func (self *shouldNot) Be(value Value) {
-	self.matcher.block = func() (bool, string) {
-		if self.matcher.value == value {
-			error := fmt.Sprintf("%v - %v - expected `%v` not to be `%v`", self.matcher.describe.name, self.matcher.it.name, self.matcher.value, value);
+type shouldNot struct { *that }
+func (self *shouldNot) Be(expected Value) {
+	self.that.SetBlock(func(actual Value) (bool, string) {
+		if actual == expected {
+			error := fmt.Sprintf("expected `%v` not to be `%v`", actual, expected);
 			return false, error;
 		}
 		return true, "";
-	}
+	})
 }
 
 type runner interface {
