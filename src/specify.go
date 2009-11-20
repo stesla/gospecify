@@ -31,6 +31,8 @@ type specification struct {
 }
 
 func (self *specification) Run(runner Runner) {
+	self.currentDescribe = nil;
+	self.currentIt = nil;
 	runList(self.describes, runner);
 	runner.Finish();
 }
@@ -46,8 +48,16 @@ func (self *specification) Describe(name string, description func()) {
 }
 
 func (self *specification) It(name string, description func()) {
-	self.currentIt = makeIt(name, description);
-	self.currentDescribe.addIt(self.currentIt);
+	describe := self.currentDescribe;
+	it := makeIt(name);
+	it.description = func() {
+		self.currentDescribe = describe;
+		self.currentIt = it;
+		description();
+		self.currentDescribe = nil;
+		self.currentIt = nil;
+	};
+	self.currentDescribe.addIt(it);
 }
 
 type Value interface{}
@@ -97,10 +107,9 @@ type it struct {
 	description func();
 }
 
-func makeIt(name string, desc func()) (result *it) {
+func makeIt(name string) (result *it) {
 	result = &it{name:name};
 	result.thats = list.New();
-	result.description = desc;
 	return;
 }
 
