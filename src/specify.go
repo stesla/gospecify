@@ -6,41 +6,50 @@ import(
 	"os";
 )
 
-func Run() {
+type Specification interface {
+	Run();
+	Behavior(name string, description func());
+	It(name string, description func());
+	That(value Value) *That;
+}
+
+type specification struct {
+	currentBehavior *behavior;
+	currentIt *it;
+	behaviors *list.List;
+}
+
+func (self *specification) Run() {
 	report := makeReport();
-	runList(behaviors, report);
+	runList(self.behaviors, report);
 	fmt.Println(report.summary());
 	if report.failed > 0 {
 		os.Exit(1);
 	}
 }
 
-func Behavior(name string, description func()) {
-	currentBehavior = makeBehavior(name);
+func (self *specification) Behavior(name string, description func()) {
+	self.currentBehavior = makeBehavior(name);
 	description();
-	behaviors.PushBack(currentBehavior);
+	self.behaviors.PushBack(self.currentBehavior);
 }
 
-func It(name string, description func()) {
-	currentIt = makeIt(name);
+func (self *specification) It(name string, description func()) {
+	self.currentIt = makeIt(name);
 	description();
-	currentBehavior.addIt(currentIt);
+	self.currentBehavior.addIt(self.currentIt);
 }
 
 type Value interface{}
 
-func That(value Value) (result *that) {
-	result = makeThat(currentBehavior, currentIt, value);
-	currentIt.addThat(result);
+func (self *specification) That(value Value) (result *That) {
+	result = makeThat(self.currentBehavior, self.currentIt, value);
+	self.currentIt.addThat(result);
 	return;
 }
 
-var currentBehavior *behavior;
-var currentIt *it;
-var behaviors *list.List;
-
-func init() {
-	behaviors = list.New();
+func New() Specification {
+	return &specification{behaviors:list.New()};
 }
  
 type behavior struct {
@@ -73,7 +82,7 @@ func makeIt(name string) (result *it) {
 	return;
 }
 
-func (self *it) addThat(that *that) {
+func (self *it) addThat(that *That) {
 	self.thats.PushBack(that);
 }
 
@@ -81,20 +90,20 @@ func (self *it) run(report *report) {
 	runList(self.thats, report);
 }
 
-type that struct {
+type That struct {
 	Should Matcher;
 	ShouldNot Matcher;
 }
 
-func makeThat(behavior *behavior, it *it, value Value) *that {
+func makeThat(behavior *behavior, it *it, value Value) *That {
 	matcher := &matcher{behavior:behavior, it:it, value:value};
-	return &that{
+	return &That{
 		&should{matcher},
 		&shouldNot{matcher}
 	};
 }
 
-func (self *that) run(report *report) {
+func (self *That) run(report *report) {
 	runner,_ := self.Should.(runner);
 	runner.run(report);
 }

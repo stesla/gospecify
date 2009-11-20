@@ -1,3 +1,15 @@
 package main
+
 import "./specify"
-func main() { specify.Run(); }
+
+var spec specify.Specification;
+
+func initSpec() {
+	if spec == nil {
+		spec = specify.New();
+	}
+}
+
+func main() {
+	spec.Run();
+}
