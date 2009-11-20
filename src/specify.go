@@ -17,6 +17,7 @@ type Runner interface {
 }
 
 type Specification interface {
+	Before(func());
 	Run(Runner);
 	Describe(name string, description func());
 	It(name string, description func());
@@ -34,6 +35,10 @@ func (self *specification) Run(runner Runner) {
 	runner.Finish();
 }
 
+func (self *specification) Before(action func()) {
+	self.currentDescribe.addBefore(action);
+}
+
 func (self *specification) Describe(name string, description func()) {
 	self.currentDescribe = makeDescribe(name);
 	description();
@@ -41,8 +46,7 @@ func (self *specification) Describe(name string, description func()) {
 }
 
 func (self *specification) It(name string, description func()) {
-	self.currentIt = makeIt(name);
-	description();
+	self.currentIt = makeIt(name, description);
 	self.currentDescribe.addIt(self.currentIt);
 }
 
@@ -61,6 +65,7 @@ func New() Specification {
 type describe struct {
 	name string;
 	its *list.List;
+	beforeAction func();
 }
 
 func makeDescribe(name string) (result *describe) {
@@ -69,11 +74,18 @@ func makeDescribe(name string) (result *describe) {
 	return;
 }
 
+func (self *describe) addBefore(action func()) {
+	self.beforeAction = action;
+}
+
 func (self *describe) addIt(it *it) {
 	self.its.PushBack(it);
 }
 
 func (self *describe) run(runner Runner) {
+	if self.beforeAction != nil {
+		self.beforeAction();
+	}
 	runList(self.its, runner);
 }
 
@@ -82,11 +94,13 @@ func (self *describe) String() string { return self.name; }
 type it struct {
 	name string;
 	thats *list.List;
+	description func();
 }
 
-func makeIt(name string) (result *it) {
+func makeIt(name string, desc func()) (result *it) {
 	result = &it{name:name};
 	result.thats = list.New();
+	result.description = desc;
 	return;
 }
 
@@ -95,6 +109,7 @@ func (self *it) addThat(that That) {
 }
 
 func (self *it) run(runner Runner) {
+	self.description();
 	runList(self.thats, runner);
 }
 
