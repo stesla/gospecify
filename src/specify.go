@@ -71,6 +71,8 @@ func (self *describe) run(report *report) {
 	runList(self.its, report);
 }
 
+func (self *describe) String() string { return self.name; }
+
 type it struct {
 	name string;
 	thats *list.List;
@@ -89,6 +91,8 @@ func (self *it) addThat(that That) {
 func (self *it) run(report *report) {
 	runList(self.thats, report);
 }
+
+func (self *it) String() string { return self.name; }
 
 type That interface {
 	SetBlock(func(Value) (bool, string));
@@ -115,6 +119,7 @@ func (self *that) run(report *report) {
 	if pass,msg := self.block(self.value); pass {
 		report.pass();
 	} else {
+		msg = fmt.Sprintf("%v %v - %v", self.describe, self.it, msg);
 		report.fail(msg);
 	}
 }
