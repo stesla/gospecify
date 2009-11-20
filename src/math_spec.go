@@ -1,7 +1,15 @@
 package main
 
-import "fmt"
+import "./specify"
 
 func init() {
-	fmt.Println("math_spec.init");
+	specify.Behavior("Math", func(it *specify.It) {
+
+		it.Should("add integers", func(expect *specify.Expect) {
+
+			expect.That(1 + 2).Should.Be(3);
+
+		})
+
+	})
 }

@@ -1,14 +1,3 @@
 package main
-
-import(
-	"fmt";
-	"./specify";
-)
-
-func init() {
-	fmt.Println("main.init");
-}
-
-func main() {
-	specify.Run();
-}
+import "./specify"
+func main() { specify.Run(); }
