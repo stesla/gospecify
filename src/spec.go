@@ -1,23 +1,32 @@
 package specify
 
-import "fmt"
+import(
+	"fmt";
+	"container/list";
+)
+
+var expectations *list.List;
+
+func init() {
+	expectations = list.New();
+}
 
 type Matcher interface {
 	Be(interface{});
 }
 
 type should struct {
-	Value interface{};
+	value interface{};
 }
 
 func (self should) Be(value interface{}) {
-	if self.Value != value {
-		fmt.Printf("Expected %v to be %v\n", self.Value, value);
+	if self.value != value {
+		fmt.Printf("Expected %v to be %v\n", self.value, value);
 	}
 }
 
 type Expectation struct {
-	Should *should;
+	Should Matcher;
 }
 
 type Expect interface {
@@ -29,6 +38,13 @@ type It interface {
 }
 
 func Run() {
+	iter := expectations.Iter();
+	for !closed(iter) {
+		item := <-iter;
+		if item == nil { break; }
+		test,_ := item.(func());
+		test();
+	}
 }
 
 type expect struct {
@@ -36,7 +52,8 @@ type expect struct {
 }
 
 func (self expect) That(value interface {}) (result *Expectation) {
-	result = &Expectation{&should{value}};
+	result = &Expectation{};
+	result.Should = &should{value};
 	return;
 }
 
@@ -46,7 +63,7 @@ type it struct {
 
 func (self it) Should(item string, spec func(*Expect)) {
 	var e Expect = expect{item};
-	spec(&e);
+	expectations.PushBack(func() { spec(&e) });
 }
 
 func Behavior(item string, spec func(*It)) {
