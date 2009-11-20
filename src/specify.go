@@ -8,66 +8,66 @@ import(
 
 type Specification interface {
 	Run();
-	Behavior(name string, description func());
+	Describe(name string, description func());
 	It(name string, description func());
 	That(value Value) *That;
 }
 
 type specification struct {
-	currentBehavior *behavior;
+	currentDescribe *describe;
 	currentIt *it;
-	behaviors *list.List;
+	describes *list.List;
 }
 
 func (self *specification) Run() {
 	report := makeReport();
-	runList(self.behaviors, report);
+	runList(self.describes, report);
 	fmt.Println(report.summary());
 	if report.failed > 0 {
 		os.Exit(1);
 	}
 }
 
-func (self *specification) Behavior(name string, description func()) {
-	self.currentBehavior = makeBehavior(name);
+func (self *specification) Describe(name string, description func()) {
+	self.currentDescribe = makeDescribe(name);
 	description();
-	self.behaviors.PushBack(self.currentBehavior);
+	self.describes.PushBack(self.currentDescribe);
 }
 
 func (self *specification) It(name string, description func()) {
 	self.currentIt = makeIt(name);
 	description();
-	self.currentBehavior.addIt(self.currentIt);
+	self.currentDescribe.addIt(self.currentIt);
 }
 
 type Value interface{}
 
 func (self *specification) That(value Value) (result *That) {
-	result = makeThat(self.currentBehavior, self.currentIt, value);
+	result = makeThat(self.currentDescribe, self.currentIt, value);
 	self.currentIt.addThat(result);
 	return;
 }
 
 func New() Specification {
-	return &specification{behaviors:list.New()};
+	return &specification{describes:list.New()};
 }
  
-type behavior struct {
+type describe struct {
 	name string;
 	its *list.List;
 }
 
-func makeBehavior(name string) (result *behavior) {
-	result = &behavior{name:name};
+func makeDescribe(name string) (result *describe) {
+	result = &describe{name:name};
 	result.its = list.New();
 	return;
 }
 
-func (self *behavior) addIt(it *it) {
+func (self *describe) addIt(it *it) {
 	self.its.PushBack(it);
 }
 
-func (self *behavior) run(report *report) {
+func (self *describe) run(report *report) {
 	runList(self.its, report);
 }
 
@@ -95,8 +95,8 @@ type That struct {
 	ShouldNot Matcher;
 }
 
-func makeThat(behavior *behavior, it *it, value Value) *That {
-	matcher := &matcher{behavior:behavior, it:it, value:value};
+func makeThat(describe *describe, it *it, value Value) *That {
+	matcher := &matcher{describe:describe, it:it, value:value};
 	return &That{
 		&should{matcher},
 		&shouldNot{matcher}
@@ -113,7 +113,7 @@ type Matcher interface {
 }
 
 type matcher struct {
-	*behavior;
+	*describe;
 	*it;
 	value Value;
 	block func() (bool, string);
@@ -131,7 +131,7 @@ type should struct { *matcher }
 func (self *should) Be(value Value) {
 	self.matcher.block = func() (bool, string) {
 		if self.matcher.value != value {
-			error := fmt.Sprintf("%v - %v - expected `%v` to be `%v`", self.matcher.behavior.name, self.matcher.it.name, self.matcher.value, value);
+			error := fmt.Sprintf("%v - %v - expected `%v` to be `%v`", self.matcher.describe.name, self.matcher.it.name, self.matcher.value, value);
 			return false, error;
 		}
 		return true, "";
@@ -142,7 +142,7 @@ type shouldNot struct { *matcher }
 func (self *shouldNot) Be(value Value) {
 	self.matcher.block = func() (bool, string) {
 		if self.matcher.value == value {
-			error := fmt.Sprintf("%v - %v - expected `%v` not to be `%v`", self.matcher.behavior.name, self.matcher.it.name, self.matcher.value, value);
+			error := fmt.Sprintf("%v - %v - expected `%v` not to be `%v`", self.matcher.describe.name, self.matcher.it.name, self.matcher.value, value);
 			return false, error;
 		}
 		return true, "";
