@@ -10,7 +10,6 @@ type Test func() (bool, os.Error);
 
 type Runner interface {
 	Fail(os.Error);
-	Failed() bool;
 	Finish();
 	Pass();
 	Run(Test);
@@ -119,7 +118,13 @@ func (self *it) addThat(that That) {
 
 func (self *it) run(runner Runner) {
 	self.description();
-	runList(self.thats, runner);
+	itRunner := &itRunner{};
+	runList(self.thats, itRunner);
+	if itRunner.failed {
+		runner.Fail(itRunner.error);
+	} else {
+		runner.Pass();
+	}
 }
 
 func (self *it) String() string { return self.name; }
@@ -204,14 +209,29 @@ func doList(list *list.List, do func(Value)) {
 	}
 }
 
+func BasicRunner() Runner { return &basicRunner{} }
+
+type basicRunner struct {}
+
+func (self *basicRunner) Fail(os.Error) {}
+func (self *basicRunner) Finish() {}
+func (self *basicRunner) Pass() {}
+func (self *basicRunner) Run(test Test) {
+	if pass,err := test(); pass {
+		self.Pass();
+	} else {
+		self.Fail(err);
+	}
+}
+
+
 func DotRunner() Runner { return &dotRunner{failures:list.New()}; }
 
 type dotRunner struct {
+	basicRunner;
 	passed, failed int;
 	failures *list.List;
 }
-
-func (self *dotRunner) Failed() bool { return self.failed > 0; }
 
 func (self *dotRunner) Pass() {
 	self.passed++;
@@ -239,10 +259,13 @@ func (self *dotRunner) summary() string {
 	return fmt.Sprintf("Passed: %v Failed: %v Total: %v", self.passed, self.failed, self.total());
 }
 
-func (self *dotRunner) Run(test Test) {
-	if pass,err := test(); pass {
-		self.Pass();
-	} else {
-		self.Fail(err);
-	}
+type itRunner struct {
+	basicRunner;
+	failed bool;
+	error os.Error;
+}
+
+func (self *itRunner) Fail(err os.Error) {
+	self.failed = true;
+	self.error = err;
 }
