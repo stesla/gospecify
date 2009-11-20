@@ -15,6 +15,7 @@ func initSpec() {
 
 type TestRunner interface {
 	specify.Runner;
+	FailCount() int;
 	PassCount() int;
 }
 
@@ -23,6 +24,7 @@ type testRunner struct {
 }
 
 func (self *testRunner) Fail(err os.Error) { self.failCount++; }
+func (self *testRunner) FailCount() int { return self.failCount; }
 func (self *testRunner) Failed() bool { return self.failCount > 0; }
 func (self *testRunner) Finish() {}
 func (self *testRunner) Pass() { self.passCount++; }
