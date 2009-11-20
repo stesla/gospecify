@@ -7,7 +7,8 @@ func init() {
 
 		it.Should("add integers", func(expect *specify.Expect) {
 
-			expect.That(1 + 2).Should.Be(3);
+			expect.That(1 + 2).Should.Be(4);
+			expect.That("foo").Should.Be("bar");
 
 		})
 

@@ -6,8 +6,18 @@ type Matcher interface {
 	Be(interface{});
 }
 
+type should struct {
+	Value interface{};
+}
+
+func (self should) Be(value interface{}) {
+	if self.Value != value {
+		fmt.Printf("Expected %v to be %v\n", self.Value, value);
+	}
+}
+
 type Expectation struct {
-	Should Matcher;
+	Should *should;
 }
 
 type Expect interface {
@@ -15,12 +25,31 @@ type Expect interface {
 }
 
 type It interface {
-	Should(item string, spec func(*Expect));
+	Should(string, func(*Expect));
 }
 
 func Run() {
-	fmt.Println("Specs Would Run Here");
+}
+
+type expect struct {
+	name string;
+}
+
+func (self expect) That(value interface {}) (result *Expectation) {
+	result = &Expectation{&should{value}};
+	return;
+}
+
+type it struct {
+	name string;
+}
+
+func (self it) Should(item string, spec func(*Expect)) {
+	var e Expect = expect{item};
+	spec(&e);
 }
 
 func Behavior(item string, spec func(*It)) {
+	var i It = it{item};
+	spec(&i);
 }
