@@ -83,11 +83,15 @@ func (self *it) run(report *report) {
 
 type that struct {
 	Should Matcher;
+	ShouldNot Matcher;
 }
 
 func makeThat(behavior *behavior, it *it, value Value) *that {
 	matcher := &matcher{behavior:behavior, it:it, value:value};
-	return &that{&should{matcher:matcher}}
+	return &that{
+		&should{matcher},
+		&shouldNot{matcher}
+	};
 }
 
 func (self *that) run(report *report) {
@@ -119,6 +123,17 @@ func (self *should) Be(value Value) {
 	self.matcher.block = func() (bool, string) {
 		if self.matcher.value != value {
 			error := fmt.Sprintf("%v - %v - expected `%v` to be `%v`", self.matcher.behavior.name, self.matcher.it.name, self.matcher.value, value);
+			return false, error;
+		}
+		return true, "";
+	}
+}
+
+type shouldNot struct { *matcher }
+func (self *shouldNot) Be(value Value) {
+	self.matcher.block = func() (bool, string) {
+		if self.matcher.value == value {
+			error := fmt.Sprintf("%v - %v - expected `%v` not to be `%v`", self.matcher.behavior.name, self.matcher.it.name, self.matcher.value, value);
 			return false, error;
 		}
 		return true, "";
