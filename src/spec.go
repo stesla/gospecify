@@ -3,15 +3,17 @@ package specify
 import(
 	"fmt";
 	"container/list";
+	"os";
 )
 
-var expectations *list.List;
+var behaviors *list.List;
+var exitCode int;
 
 func init() {
-	expectations = list.New();
+	behaviors = list.New();
 }
 
-type Matcher interface {
+type matcher interface {
 	Be(interface{});
 }
 
@@ -21,24 +23,47 @@ type should struct {
 
 func (self should) Be(value interface{}) {
 	if self.value != value {
-		fmt.Printf("Expected %v to be %v\n", self.value, value);
+		self.Failf("Expected %v to be %v\n", self.value, value);
 	}
 }
 
-type Expectation struct {
-	Should Matcher;
+func (self should) Failf(format string, v ...) {
+	fmt.Printf(format, v);
+	exitCode = 1;
+}
+
+type That struct {
+	Should matcher;
 }
 
 type Expect interface {
-	That(interface {}) *Expectation;
+	That(interface {}) *That;
 }
 
 type It interface {
 	Should(string, func(*Expect));
 }
 
-func Run() {
-	iter := expectations.Iter();
+type expect struct {}
+
+func (self expect) That(value interface {}) (result *That) {
+	result = &That{};
+	result.Should = &should{value};
+	return;
+}
+
+type it struct {
+	name string;
+	expectations *list.List;
+}
+
+func (self it) Should(desc string, spec func(*Expect)) {
+	var e Expect = expect{};
+	self.expectations.PushBack(func() { spec(&e); });
+}
+
+func (self it) run() {
+	iter := self.expectations.Iter();
 	for !closed(iter) {
 		item := <-iter;
 		if item == nil { break; }
@@ -47,26 +72,19 @@ func Run() {
 	}
 }
 
-type expect struct {
-	name string;
-}
-
-func (self expect) That(value interface {}) (result *Expectation) {
-	result = &Expectation{};
-	result.Should = &should{value};
-	return;
-}
-
-type it struct {
-	name string;
-}
-
-func (self it) Should(item string, spec func(*Expect)) {
-	var e Expect = expect{item};
-	expectations.PushBack(func() { spec(&e) });
-}
-
 func Behavior(item string, spec func(*It)) {
-	var i It = it{item};
+	var i It = it{item, list.New()};
 	spec(&i);
+	behaviors.PushBack(i);
+}
+
+func Run() {
+	iter := behaviors.Iter();
+	for !closed(iter) {
+		item := <-iter;
+		if item == nil { break; }
+		i,_ := item.(it);
+		i.run();
+	}
+	os.Exit(exitCode);
 }
