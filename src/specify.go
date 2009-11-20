@@ -11,9 +11,9 @@ type Test func() (bool, os.Error);
 type Runner interface {
 	Fail(os.Error);
 	Failed() bool;
+	Finish();
 	Pass();
 	Run(Test);
-	Summary() string;
 }
 
 type Specification interface {
@@ -31,10 +31,7 @@ type specification struct {
 
 func (self *specification) Run(runner Runner) {
 	runList(self.describes, runner);
-	fmt.Println(runner.Summary());
-	if runner.Failed() {
-		os.Exit(1);
-	}
+	runner.Finish();
 }
 
 func (self *specification) Describe(name string, description func()) {
@@ -127,7 +124,14 @@ func makeThat(describe *describe, it *it, value Value) That {
 }
 
 func (self *that) run(runner Runner) {
-	runner.Run(func()(bool, os.Error) { return self.block(self.value) });
+	runner.Run(func()(pass bool, error os.Error) {
+		pass, error = self.block(self.value);
+		if !pass {
+			msg := fmt.Sprintf("%v %v - %v", self.describe, self.it, error);
+			error = os.NewError(msg);
+		}
+		return;
+	});
 }
 
 func (self *that) SetBlock(block ValueTest) { self.block = block; }
@@ -184,19 +188,29 @@ type dotRunner struct {
 }
 
 func (self *dotRunner) Failed() bool { return self.failed > 0; }
-func (self *dotRunner) Pass() { self.passed++; }
-func (self *dotRunner) total() int { return self.passed + self.failed; }
+
+func (self *dotRunner) Pass() {
+	self.passed++;
+	fmt.Print(".");
+}
 
 func (self *dotRunner) Fail(err os.Error) {
 	self.failures.PushBack(err);
 	self.failed++;
+	fmt.Print("F");
 }
 
-func (self *dotRunner) Summary() string {
+func (self *dotRunner) Finish() {
+	fmt.Println("");
+	fmt.Print(self.summary());
+	fmt.Println("");
+}
+
+func (self *dotRunner) total() int { return self.passed + self.failed; }
+func (self *dotRunner) summary() string {
 	if self.failed > 0 {
-		fmt.Println("\nFAILED TESTS:");
+		fmt.Println("FAILED TESTS:");
 		doList(self.failures, func(item Value) { fmt.Println("-", item) });
-		fmt.Println("");
 	}
 	return fmt.Sprintf("Passed: %v Failed: %v Total: %v", self.passed, self.failed, self.total());
 }
