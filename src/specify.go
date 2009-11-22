@@ -19,20 +19,16 @@ type Specification interface {
 	Before(func());
 	Run(Runner);
 	Describe(name string, description func());
-	It(name string, description func());
-	That(value Value) That;
+	It(name string, description func(it It));
 	Be(value Value) Matcher;
 }
 
 type specification struct {
 	currentDescribe *describe;
-	currentIt *it;
 	describes *list.List;
 }
 
 func (self *specification) Run(runner Runner) {
-	self.currentDescribe = nil;
-	self.currentIt = nil;
 	runList(self.describes, runner);
 	runner.Finish();
 }
@@ -47,16 +43,10 @@ func (self *specification) Describe(name string, description func()) {
 	self.describes.PushBack(self.currentDescribe);
 }
 
-func (self *specification) It(name string, description func()) {
-	describe := self.currentDescribe;
+func (self *specification) It(name string, description func(it It)) {
 	it := makeIt(name);
-	it.description = func() {
-		self.currentDescribe = describe;
-		self.currentIt = it;
-		description();
-		self.currentDescribe = nil;
-		self.currentIt = nil;
-	};
+	it.description = description;
+	it.describe = self.currentDescribe;
 	self.currentDescribe.addIt(it);
 }
 
@@ -65,10 +55,6 @@ func (self *specification) Be(expected Value) Matcher {
 }
 
 type Value interface{}
-
-func (self *specification) That(value Value) That {
-	return makeThat(self.currentDescribe, self.currentIt, value);
-}
 
 func New() Specification {
 	return &specification{describes:list.New()};
@@ -103,9 +89,14 @@ func (self *describe) run(runner Runner) {
 
 func (self *describe) String() string { return self.name; }
 
+type It interface {
+	That(Value) That;
+}
+
 type it struct {
 	name string;
-	description func();
+	description func(it It);
+	*describe;
 	*itRunner;
 }
 
@@ -116,12 +107,16 @@ func makeIt(name string) (result *it) {
 }
 
 func (self *it) run(runner Runner) {
-	self.description();
+	self.description(self);
 	if self.itRunner.failed {
 		runner.Fail(self.itRunner.error);
 	} else {
 		runner.Pass();
 	}
+}
+
+func (self *it) That(value Value) That {
+	return makeThat(self.describe, self, value);
 }
 
 func (self *it) String() string { return self.name; }
