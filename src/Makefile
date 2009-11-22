@@ -10,7 +10,7 @@ TEST_SRC=$(wildcard *_spec.go)
 all: test
 
 clean:
-	rm -rf *.[a$O] $(TESTPROG)
+	rm -rf *.[a68] $(TESTPROG)
 
 test: $(TESTPROG)
 	./$(TESTPROG)
