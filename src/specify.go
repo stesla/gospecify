@@ -19,8 +19,7 @@ type Specification interface {
 	Before(func());
 	Run(Runner);
 	Describe(name string, description func());
-	It(name string, description func(it It));
-	Be(value Value) Matcher;
+	It(name string, description ItBlock);
 }
 
 type specification struct {
@@ -43,14 +42,16 @@ func (self *specification) Describe(name string, description func()) {
 	self.describes.PushBack(self.currentDescribe);
 }
 
-func (self *specification) It(name string, description func(it It)) {
+type ItBlock func(the The);
+
+func (self *specification) It(name string, description ItBlock) {
 	it := makeIt(name);
 	it.description = description;
 	it.describe = self.currentDescribe;
 	self.currentDescribe.addIt(it);
 }
 
-func (self *specification) Be(expected Value) Matcher {
+func Be(expected Value) Matcher {
 	return &beMatcher{};
 }
 
@@ -89,13 +90,13 @@ func (self *describe) run(runner Runner) {
 
 func (self *describe) String() string { return self.name; }
 
-type It interface {
-	That(Value) That;
+type The interface {
+	Value(Value) That;
 }
 
 type it struct {
 	name string;
-	description func(it It);
+	description ItBlock;
 	*describe;
 	*itRunner;
 }
@@ -115,7 +116,7 @@ func (self *it) run(runner Runner) {
 	}
 }
 
-func (self *it) That(value Value) That {
+func (self *it) Value(value Value) That {
 	return makeThat(self.describe, self, value);
 }
 

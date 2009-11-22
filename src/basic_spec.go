@@ -1,37 +1,35 @@
 package main
 
-import "./specify"
+import sp "./specify"
 
 var runner TestRunner;
 
 func init() {
-	initSpec();
-	
-	spec.Describe("Specification", func() {
+	Describe("Specification", func() {
 		runner = makeTestRunner();
 
 		spec.Before(func () {
-			s := specify.New();
+			s := sp.New();
 			s.Describe("Foo", func() {
-				s.It("pass", func(it specify.It) {
-					it.That(7 * 6).Should(spec.Be(42));
-					it.That(1).ShouldNot(spec.Be(2));
+				s.It("pass", func(the sp.The) {
+					the.Value(7 * 6).Should(Be(42));
+					the.Value(1).ShouldNot(Be(2));
 				});
 
-				s.It("fail", func(it specify.It) {
-					it.That(7 * 6).ShouldNot(spec.Be(42));
-					it.That(1).Should(spec.Be(2));
+				s.It("fail", func(the sp.The) {
+					the.Value(7 * 6).ShouldNot(Be(42));
+					the.Value(1).Should(Be(2));
 				});
 			});
 			s.Run(runner);
 		});
 
-		spec.It("indicates a passing test", func(it specify.It) {
-			it.That(runner.PassCount()).Should(spec.Be(1));
+		It("indicates a passing test", func(the sp.The) {
+			the.Value(runner.PassCount()).Should(Be(1));
 		});
 
-		spec.It("indicates a failing test", func(it specify.It) {
-			it.That(runner.FailCount()).Should(spec.Be(1));
+		It("indicates a failing test", func(the sp.The) {
+			the.Value(runner.FailCount()).Should(Be(1));
 		})
 	});
 }
