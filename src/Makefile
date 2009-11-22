@@ -10,10 +10,15 @@ TEST_SRC=$(wildcard *_spec.go)
 all: test
 
 clean:
-	rm -rf *.$O $(TESTPROG) $(PACKAGE).$O
+	rm -rf *.[a$O] $(TESTPROG)
 
 test: $(TESTPROG)
 	./$(TESTPROG)
+
+package: $(PACKAGE).a
+
+$(PACKAGE).a: $(PACKAGE).$O
+	gopack grc $@ $(PACKAGE).$O
 
 $(PACKAGE).$O: $(SRC)
 	$(GC) -o $@ $(SRC)
