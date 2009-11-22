@@ -21,6 +21,7 @@ type Specification interface {
 	Describe(name string, description func());
 	It(name string, description func());
 	That(value Value) That;
+	Be(value Value) Matcher;
 }
 
 type specification struct {
@@ -59,12 +60,14 @@ func (self *specification) It(name string, description func()) {
 	self.currentDescribe.addIt(it);
 }
 
+func (self *specification) Be(expected Value) Matcher {
+	return &beMatcher{};
+}
+
 type Value interface{}
 
-func (self *specification) That(value Value) (result That) {
-	result = makeThat(self.currentDescribe, self.currentIt, value);
-	self.currentIt.addThat(result);
-	return;
+func (self *specification) That(value Value) That {
+	return makeThat(self.currentDescribe, self.currentIt, value);
 }
 
 func New() Specification {
@@ -102,26 +105,20 @@ func (self *describe) String() string { return self.name; }
 
 type it struct {
 	name string;
-	thats *list.List;
 	description func();
+	*itRunner;
 }
 
 func makeIt(name string) (result *it) {
 	result = &it{name:name};
-	result.thats = list.New();
+	result.itRunner = &itRunner{};
 	return;
-}
-
-func (self *it) addThat(that That) {
-	self.thats.PushBack(that);
 }
 
 func (self *it) run(runner Runner) {
 	self.description();
-	itRunner := &itRunner{};
-	runList(self.thats, itRunner);
-	if itRunner.failed {
-		runner.Fail(itRunner.error);
+	if self.itRunner.failed {
+		runner.Fail(self.itRunner.error);
 	} else {
 		runner.Pass();
 	}
@@ -132,13 +129,33 @@ func (self *it) String() string { return self.name; }
 type ValueTest func(Value) (bool, os.Error);
 
 type That interface {
-	SetBlock(ValueTest);
-	Should() Matcher;
-	ShouldNot() Matcher;
+	Should(Matcher);
+	ShouldNot(Matcher);
 }
 
 type Matcher interface {
-	Be(Value);
+	Should(Value) (bool, os.Error);
+	ShouldNot(Value) (bool, os.Error);
+}
+
+type beMatcher struct {
+	expected Value;
+}
+
+func (self *beMatcher) Should(actual Value) (pass bool, err os.Error) {
+	if actual != self.expected {
+		error := fmt.Sprintf("expected `%v` to be `%v`", actual, self.expected);
+		return false, os.NewError(error);
+	}
+	return true, nil;
+}
+
+func (self *beMatcher) ShouldNot(actual Value) (pass bool, err os.Error) {
+	if actual == self.expected {
+		error := fmt.Sprintf("expected `%v` not to be `%v`", actual, self.expected);
+		return false, os.NewError(error);
+	}
+	return true, nil;
 }
 
 type that struct {
@@ -152,41 +169,16 @@ func makeThat(describe *describe, it *it, value Value) That {
 	return &that{describe:describe, it:it, value:value};
 }
 
-func (self *that) run(runner Runner) {
-	runner.Run(func()(pass bool, error os.Error) {
-		pass, error = self.block(self.value);
-		if !pass {
-			msg := fmt.Sprintf("%v %v - %v", self.describe, self.it, error);
-			error = os.NewError(msg);
-		}
-		return;
+func (self *that) Should(matcher Matcher) {
+	self.it.Run(func() (bool, os.Error) {
+		return matcher.Should(self.value);
 	});
 }
 
-func (self *that) SetBlock(block ValueTest) { self.block = block; }
-func (self *that) Should() Matcher  { return &should{self}; }
-func (self *that) ShouldNot() Matcher { return &shouldNot{self}; }
-
-type should struct { that That }
-func (self *should) Be(expected Value) {
-	self.that.SetBlock(func(actual Value) (bool, os.Error) {
-		if actual != expected {
-			error := fmt.Sprintf("expected `%v` to be `%v`", actual, expected);
-			return false, os.NewError(error);
-		}
-		return true, nil;
+func (self *that) ShouldNot(matcher Matcher) {
+	self.it.Run(func() (bool, os.Error) {
+		return matcher.ShouldNot(self.value);
 	});
-}
-
-type shouldNot struct { that That }
-func (self *shouldNot) Be(expected Value) {
-	self.that.SetBlock(func(actual Value) (bool, os.Error) {
-		if actual == expected {
-			error := fmt.Sprintf("expected `%v` not to be `%v`", actual, expected);
-			return false, os.NewError(error);
-		}
-		return true, nil;
-	})
 }
 
 type test interface {
@@ -223,7 +215,6 @@ func (self *basicRunner) Run(test Test) {
 		self.Fail(err);
 	}
 }
-
 
 func DotRunner() Runner { return &dotRunner{failures:list.New()}; }
 
@@ -266,6 +257,7 @@ type itRunner struct {
 }
 
 func (self *itRunner) Fail(err os.Error) {
+	if self.failed { return }
 	self.failed = true;
 	self.error = err;
 }
