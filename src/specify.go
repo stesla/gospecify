@@ -28,6 +28,10 @@ type specification struct {
 }
 
 func (self *specification) Run(runner Runner) {
+	doList(self.describes, func(item Value) {
+		describe,_ := item.(builder);
+		describe.build();
+	});
 	runList(self.describes, runner);
 	runner.Finish();
 }
@@ -80,9 +84,12 @@ func (self *describe) addIt(it *it) {
 	self.its.PushBack(it);
 }
 
-func (self *describe) run(runner Runner) {
+func (self *describe) build() {
 	self.spec.currentDescribe = self;
 	self.block();
+}
+
+func (self *describe) run(runner Runner) {
 	if self.beforeAction != nil {
 		self.beforeAction();
 	}
@@ -180,6 +187,10 @@ func (self *that) ShouldNot(matcher Matcher) {
 
 type test interface {
 	run(Runner);
+}
+
+type builder interface {
+	build();
 }
 
 func runList(list *list.List, runner Runner) {
