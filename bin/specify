@@ -29,6 +29,10 @@ func Be(value specify.Value) specify.Matcher {
 	return specify.Be(value);
 }
 
+func Before(block func()) {
+	spec.Before(block);
+}
+
 func Describe(name string, block func()) {
 	spec.Describe(name, block);
 }

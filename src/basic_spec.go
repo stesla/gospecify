@@ -29,7 +29,7 @@ func init() {
 	Describe("Specification", func() {
 		runner = makeTestRunner();
 
-		spec.Before(func () {
+		Before(func () {
 			s := sp.New();
 			s.Describe("Foo", func() {
 				s.It("pass", func(the sp.The) {
