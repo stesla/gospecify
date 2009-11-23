@@ -1,0 +1,57 @@
+#!/bin/bash
+
+while [ $# -ne 0 ]; do
+    param=$1
+    shift
+    case $param in
+        -I) lib=$1 ; libs="$libs -I$lib"; shift ;;
+        *) files="$files $param"
+    esac
+done
+
+default_o()
+{ 
+    echo 8 
+}
+
+[ x$O == 'x' ] && O=$(default_o)
+[ x$GC == 'x' ] && GC=${O}g
+[ x$LD == 'x' ] && LD=${O}l
+
+cat > _specify_.go <<EOF
+package main
+
+import "specify";
+
+var spec specify.Specification
+
+func Be(value specify.Value) specify.Matcher {
+	return specify.Be(value);
+}
+
+func Describe(name string, block func()) {
+	initSpec();
+	spec.Describe(name, block);
+}
+
+func It(name string, block func(specify.The)) {
+	spec.It(name, block);
+}
+
+func initSpec() {
+	if spec == nil {
+		spec = specify.New();
+	}
+}
+
+func main() {
+	runner := specify.DotRunner();
+	spec.Run(runner);
+}
+EOF
+
+
+$GC -o _specify_.$O $libs _specify_.go $files \
+    && $LD _specify_.$O \
+    && ./$O.out
+rm _specify_.* $O.out

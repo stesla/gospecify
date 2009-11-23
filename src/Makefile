@@ -2,6 +2,9 @@ PACKAGE=specify
 TESTPROG=test_$(PACKAGE)
 
 include $(GOROOT)/src/Make.$(GOARCH)
+export GC
+export LD
+export O
 
 SRC=specify.go
 
@@ -12,8 +15,8 @@ all: test
 clean:
 	rm -rf *.[a68] $(TESTPROG)
 
-test: $(TESTPROG)
-	./$(TESTPROG)
+test: package
+	../bin/specify -I . *_spec.go
 
 package: $(PACKAGE).a
 
@@ -22,9 +25,3 @@ $(PACKAGE).a: $(PACKAGE).$O
 
 $(PACKAGE).$O: $(SRC)
 	$(GC) -o $@ $(SRC)
-
-$(TESTPROG).$O: $(PACKAGE).$O $(TEST_SRC)
-	$(GC) -o $@ -I. $(TEST_SRC)
-
-$(TESTPROG): $(TESTPROG).$O
-	$(LD) -o $@ $<

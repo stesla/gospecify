@@ -1,3 +1,5 @@
+GOBIN=$(HOME)/bin
+
 all: test
 
 test:
@@ -8,3 +10,4 @@ package:
 
 install: package
 	cp src/specify.a $(GOROOT)/pkg/$(GOOS)_$(GOARCH)
+	cp bin/specify $(GOBIN)
