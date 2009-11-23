@@ -15,6 +15,14 @@ type Runner interface {
 	Run(Test);
 }
 
+func RunTest(test Test, runner Runner) {
+	if pass,err := test(); pass {
+		runner.Pass();
+	} else {
+		runner.Fail(err);
+	}
+}
+
 type Specification interface {
 	Before(func());
 	Run(Runner);
@@ -55,7 +63,7 @@ func (self *specification) It(name string, description ItBlock) {
 }
 
 func Be(expected Value) Matcher {
-	return &beMatcher{};
+	return &beMatcher{expected};
 }
 
 type Value interface{}
@@ -218,25 +226,9 @@ func doList(list *list.List, do func(Value)) {
 	}
 }
 
-func BasicRunner() Runner { return &basicRunner{} }
-
-type basicRunner struct {}
-
-func (self *basicRunner) Fail(os.Error) {}
-func (self *basicRunner) Finish() {}
-func (self *basicRunner) Pass() {}
-func (self *basicRunner) Run(test Test) {
-	if pass,err := test(); pass {
-		self.Pass();
-	} else {
-		self.Fail(err);
-	}
-}
-
 func DotRunner() Runner { return &dotRunner{failures:list.New()}; }
 
 type dotRunner struct {
-	basicRunner;
 	passed, failed int;
 	failures *list.List;
 }
@@ -258,6 +250,8 @@ func (self *dotRunner) Finish() {
 	fmt.Println("");
 }
 
+func (self *dotRunner) Run(test Test) { RunTest(test, self); }
+
 func (self *dotRunner) total() int { return self.passed + self.failed; }
 func (self *dotRunner) summary() string {
 	if self.failed > 0 {
@@ -268,7 +262,6 @@ func (self *dotRunner) summary() string {
 }
 
 type itRunner struct {
-	basicRunner;
 	failed bool;
 	error os.Error;
 }
@@ -278,3 +271,7 @@ func (self *itRunner) Fail(err os.Error) {
 	self.failed = true;
 	self.error = err;
 }
+
+func (self *itRunner) Finish() {}
+func (self *itRunner) Pass() {}
+func (self *itRunner) Run(test Test) { RunTest(test, self); }
