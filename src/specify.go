@@ -37,9 +37,8 @@ func (self *specification) Before(action func()) {
 }
 
 func (self *specification) Describe(name string, description func()) {
-	self.currentDescribe = makeDescribe(name);
-	description();
-	self.describes.PushBack(self.currentDescribe);
+	describe := makeDescribe(self, name, description);
+	self.describes.PushBack(describe);
 }
 
 type ItBlock func(the The);
@@ -63,14 +62,14 @@ func New() Specification {
  
 type describe struct {
 	name string;
+	block func();
 	its *list.List;
+	spec *specification;
 	beforeAction func();
 }
 
-func makeDescribe(name string) (result *describe) {
-	result = &describe{name:name};
-	result.its = list.New();
-	return;
+func makeDescribe(spec *specification, name string, block func()) *describe {
+	return &describe{name:name, block:block, its:list.New(), spec:spec};
 }
 
 func (self *describe) addBefore(action func()) {
@@ -82,6 +81,8 @@ func (self *describe) addIt(it *it) {
 }
 
 func (self *describe) run(runner Runner) {
+	self.spec.currentDescribe = self;
+	self.block();
 	if self.beforeAction != nil {
 		self.beforeAction();
 	}
