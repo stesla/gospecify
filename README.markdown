@@ -28,7 +28,7 @@ You can look at src/Makefile to see how gospecify runs the command to test itsel
 
 Contributions are always welcome. Just clone the git repo and hack away. You can submit pull requests or email me patches.
 
-GitHub: http://github.com/stesla/gospecify
-Email: samuel.tesla@gmail.com
+* GitHub: http://github.com/stesla/gospecify
+* Email: samuel.tesla@gmail.com
 
 Happy Testing!
