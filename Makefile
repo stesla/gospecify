@@ -2,6 +2,9 @@ GOBIN=$(HOME)/bin
 
 all: test
 
+clean:
+	cd src; make clean
+
 test:
 	cd src; make test
 
