@@ -24,7 +24,7 @@ $(PACKAGE).$O: $(SRC)
 	$(GC) -o $@ $(SRC)
 
 $(TESTPROG).$O: $(PACKAGE).$O $(TEST_SRC)
-	$(GC) -o $@ $(TEST_SRC)
+	$(GC) -o $@ -I. $(TEST_SRC)
 
 $(TESTPROG): $(TESTPROG).$O
 	$(LD) -o $@ $<

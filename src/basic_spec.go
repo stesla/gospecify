@@ -1,6 +1,6 @@
 package main
 
-import sp "./specify"
+import sp "specify"
 
 var runner TestRunner;
 
