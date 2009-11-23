@@ -194,10 +194,19 @@ type builder interface {
 }
 
 func runList(list *list.List, runner Runner) {
+	done := make([] chan bool, list.Len());
+	i := 0;
 	doList(list, func(item Value) {
-		test,_ := item.(test);
-		test.run(runner);
+		ch := make(chan bool);
+		done[i] = ch;
+		i++;
+		go func() {
+			test,_ := item.(test);
+			test.run(runner);
+			ch <- true;
+		}();
 	});
+	for _,ch := range done { <-ch; }
 }
 
 func doList(list *list.List, do func(Value)) {
