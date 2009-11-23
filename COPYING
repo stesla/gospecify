@@ -1,4 +1,3 @@
-/*
 Copyright (c) 2009 Samuel Tesla <samuel.tesla@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,27 +17,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/
-package main
-
-import sp "specify"
-
-func init() {
-	Describe("Math", func() {
-		It("adds", func(the sp.The) {
-			the.Value(1 + 1).Should(Be(2));
-		});
-
-		It("multiplies", func(the sp.The) {
-			the.Value(3 * 3).Should(Be(9));
-			the.Value(2 * 4).ShouldNot(Be(6));
-		});
-	});
-
-	Describe("String", func() {
-		It("concatenates", func(the sp.The) {
-			the.Value("Doctor" + "Donna").Should(Be("DoctorDonna"));
-			the.Value("foo" + "bar").ShouldNot(Be("bar"));
-		});
-	});
-}
