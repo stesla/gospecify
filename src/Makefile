@@ -33,7 +33,7 @@ TEST_SRC=$(wildcard *_spec.go)
 all: test
 
 clean:
-	rm -rf *.[a68] $(TESTPROG) test*
+	rm -rf *.[a68] $(TESTPROG) _test
 
 package: $(PACKAGE).a
 
@@ -48,7 +48,9 @@ testpackage: test$(PACKAGE).a
 test$(PACKAGE).a: test$(PACKAGE).$O
 	gopack grc $@ test$(PACKAGE).$O
 
-test$(PACKAGE).$O: $(SRC)
-	for i in $(SRC); do sed -e 's/package $(PACKAGE)/package test$(PACKAGE)/' < $$i > test$$i; done
-	$(GC) -o $@ test*.go
+test$(PACKAGE).$O: _test $(SRC)
+	for i in $(SRC); do sed -e 's/package $(PACKAGE)/package test$(PACKAGE)/' < $$i > _test/$$i; done
+	$(GC) -o $@ _test/*.go
 
+_test:
+	mkdir _test
