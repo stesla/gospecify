@@ -33,10 +33,7 @@ TEST_SRC=$(wildcard *_spec.go)
 all: test
 
 clean:
-	rm -rf *.[a68] $(TESTPROG)
-
-test: package
-	../bin/specify -I . *_spec.go
+	rm -rf *.[a68] $(TESTPROG) test*
 
 package: $(PACKAGE).a
 
@@ -45,3 +42,13 @@ $(PACKAGE).a: $(PACKAGE).$O
 
 $(PACKAGE).$O: $(SRC)
 	$(GC) -o $@ $(SRC)
+
+testpackage: test$(PACKAGE).a
+
+test$(PACKAGE).a: test$(PACKAGE).$O
+	gopack grc $@ test$(PACKAGE).$O
+
+test$(PACKAGE).$O: $(SRC)
+	for i in $(SRC); do sed -e 's/package $(PACKAGE)/package test$(PACKAGE)/' < $$i > test$$i; done
+	$(GC) -o $@ test*.go
+

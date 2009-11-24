@@ -21,7 +21,10 @@ THE SOFTWARE.
 */
 package main
 
-import sp "specify"
+import(
+	sp "specify";
+	t  "../src/testspecify";
+)
 
 var runner TestRunner;
 
@@ -30,16 +33,16 @@ func init() {
 		runner = makeTestRunner();
 
 		Before(func () {
-			s := sp.New();
+			s := t.New();
 			s.Describe("Foo", func() {
-				s.It("pass", func(the sp.The) {
-					the.Value(7 * 6).Should(Be(42));
-					the.Value(1).ShouldNot(Be(2));
+				s.It("pass", func(the t.The) {
+					the.Value(7 * 6).Should(t.Be(42));
+					the.Value(1).ShouldNot(t.Be(2));
 				});
 
-				s.It("fail", func(the sp.The) {
-					the.Value(7 * 6).ShouldNot(Be(42));
-					the.Value(1).Should(Be(2));
+				s.It("fail", func(the t.The) {
+					the.Value(7 * 6).ShouldNot(t.Be(42));
+					the.Value(1).Should(t.Be(2));
 				});
 			});
 			s.Run(runner);

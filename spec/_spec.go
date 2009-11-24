@@ -23,7 +23,7 @@ package main
 
 import(
 	"os";
-	"specify";
+	specify "../src/testspecify";
 )
 
 type TestRunner interface {

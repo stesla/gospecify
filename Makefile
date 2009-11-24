@@ -19,6 +19,7 @@
 # THE SOFTWARE.
 
 GOBIN=$(HOME)/bin
+SPECIFY=specify
 
 all: test
 
@@ -26,7 +27,8 @@ clean:
 	cd src; make clean
 
 test:
-	cd src; make test
+	cd src; make testpackage
+	cd spec; $(SPECIFY) *_spec.go
 
 package:
 	cd src; make package
