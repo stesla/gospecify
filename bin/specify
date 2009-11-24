@@ -9,16 +9,43 @@ while [ $# -ne 0 ]; do
     esac
 done
 
-default_o()
-{ 
-    echo 8 
+downcase()
+{
+    tr [[:upper:]] [[:lower:]]
 }
 
-[ x$O == 'x' ] && O=$(default_o)
+find_os()
+{
+    uname -s | downcase
+}
+
+find_arch()
+{ 
+    case `uname -p` in
+        i386) echo "386" ;;
+        x86_64) echo "amd64" ;;
+        *) echo $1
+    esac
+}
+
+default_o()
+{
+    case $1 in
+        amd64) echo 6 ;;
+        arm) echo 7 ;;
+        386) echo 8 ;;
+    esac
+}
+
+[ x$GOROOT == 'x' ] && GOROOT=$HOME/go
+[ x$GOOS == 'x' ] && GOOS=$(find_os)
+[ x$GOARCH == 'x' ] && GOARCH=$(find_arch)
+[ x$O == 'x' ] && O=$(default_o $GOARCH)
 [ x$GC == 'x' ] && GC=${O}g
 [ x$LD == 'x' ] && LD=${O}l
 
-cat > _specify_.go <<EOF
+create_main() {
+    cat > _specify_.go <<EOF
 package main
 
 import "specify";
@@ -46,9 +73,18 @@ func main() {
 	spec.Run(runner);
 }
 EOF
+}
 
+run() {
+    $GC -o _specify_.$O $libs _specify_.go $files \
+        && $LD _specify_.$O \
+        && ./$O.out
+}
 
-$GC -o _specify_.$O $libs _specify_.go $files \
-    && $LD _specify_.$O \
-    && ./$O.out
-rm _specify_.* $O.out
+clean() {
+    rm _specify_.* $O.out
+}
+
+create_main
+GOROOT=$GOROOT GOOS=$GOOS GOARCH=$GOARCH run
+clean
