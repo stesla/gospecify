@@ -27,31 +27,25 @@ import(
 )
 
 func init() {
-	Describe("Specification", func() {
+	Describe("Before", func() {
 		runner := makeTestRunner();
 
 		Before(func () {
 			s := t.New();
 			s.Describe("Foo", func() {
-				s.It("pass", func(the t.The) {
-					the.Value(7 * 6).Should(t.Be(42));
-					the.Value(1).ShouldNot(t.Be(2));
-				});
+				var val int;
+
+				s.Before(func() { val = 42 });
 
 				s.It("fail", func(the t.The) {
-					the.Value(7 * 6).ShouldNot(t.Be(42));
-					the.Value(1).Should(t.Be(2));
+					the.Value(val).ShouldNot(t.Be(0));
 				});
 			});
 			s.Run(runner);
 		});
 
-		It("indicates a passing test", func(the sp.The) {
-			the.Value(runner.PassCount()).Should(Be(1));
-		});
-
 		It("indicates a failing test", func(the sp.The) {
-			the.Value(runner.FailCount()).Should(Be(1));
+			the.Value(runner.PassCount()).Should(Be(1));
 		})
 	});
 }
