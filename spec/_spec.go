@@ -52,24 +52,28 @@ var BePassing passingMatcher;
 
 type passingMatcher int;
 
+type runnerTest func(TestRunner) (bool, os.Error);
+
+func withTestRunner(val specify.Value, test runnerTest) (bool, os.Error) {
+	runner, ok := val.(TestRunner);
+	if !ok { return false, os.NewError("not a TestRunner") }
+	return test(runner);
+}
+
 func (passingMatcher) Should(val specify.Value) (bool, os.Error) {
-	if runner,ok := val.(TestRunner); ok {
-		if runner.FailCount() > 0 {
-			return false, os.NewError("expected runner to be passing, but it was not");
+	return withTestRunner(val, func(runner TestRunner) (pass bool, err os.Error) {
+		if pass = runner.FailCount() == 0; !pass {
+			err = os.NewError("expected runner to be passing, but it was not");
 		}
-	} else {
-		return false, os.NewError("not a TestRunner");
-	}
-	return true, nil;
+		return;
+	});
 }
 
 func (passingMatcher) ShouldNot(val specify.Value) (bool, os.Error) {
-	if runner,ok := val.(TestRunner); ok {
-		if runner.FailCount() == 0 {
-			return false, os.NewError("expected runner to be failing, but it was not");
+	return withTestRunner(val, func(runner TestRunner) (pass bool, err os.Error) {
+		if pass = runner.FailCount() > 0; !pass {
+			err = os.NewError("expected runner to be failing, but it was not");
 		}
-	} else {
-		return false, os.NewError("not a TestRunner");
-	}
-	return true, nil
+		return;
+	});
 }
