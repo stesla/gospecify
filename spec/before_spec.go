@@ -45,7 +45,7 @@ func init() {
 		});
 
 		It("indicates a failing test", func(the sp.The) {
-			the.Value(runner.PassCount()).Should(Be(1));
+			the.Value(runner).Should(BePassing);
 		})
 	});
 }

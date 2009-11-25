@@ -46,11 +46,15 @@ func init() {
 			s.Run(runner);
 		});
 
-		It("indicates a passing test", func(the sp.The) {
+		It("fails", func(the sp.The) {
+			the.Value(runner).ShouldNot(BePassing);
+		});
+
+		It("counts only its that pass, not assertions", func(the sp.The) {
 			the.Value(runner.PassCount()).Should(Be(1));
 		});
 
-		It("indicates a failing test", func(the sp.The) {
+		It("counts only its that fail, not assertions", func(the sp.The) {
 			the.Value(runner.FailCount()).Should(Be(1));
 		})
 	});

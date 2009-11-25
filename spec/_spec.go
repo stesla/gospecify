@@ -23,11 +23,12 @@ package main
 
 import(
 	"os";
-	specify "../src/testspecify";
+	"specify";
+	t "../src/testspecify";
 )
 
 type TestRunner interface {
-	specify.Runner;
+	t.Runner;
 	FailCount() int;
 	PassCount() int;
 }
@@ -45,4 +46,30 @@ func (self *testRunner) FailCount() int { return self.failCount; }
 func (self *testRunner) Finish() {}
 func (self *testRunner) Pass() { self.passCount++; }
 func (self *testRunner) PassCount() int { return self.passCount; }
-func (self *testRunner) Run(test specify.Test) { specify.RunTest(test, self); }
+func (self *testRunner) Run(test t.Test) { t.RunTest(test, self); }
+
+var BePassing passingMatcher;
+
+type passingMatcher int;
+
+func (passingMatcher) Should(val specify.Value) (bool, os.Error) {
+	if runner,ok := val.(TestRunner); ok {
+		if runner.FailCount() > 0 {
+			return false, os.NewError("expected runner to be passing, but it was not");
+		}
+	} else {
+		return false, os.NewError("not a TestRunner");
+	}
+	return true, nil;
+}
+
+func (passingMatcher) ShouldNot(val specify.Value) (bool, os.Error) {
+	if runner,ok := val.(TestRunner); ok {
+		if runner.FailCount() == 0 {
+			return false, os.NewError("expected runner to be failing, but it was not");
+		}
+	} else {
+		return false, os.NewError("not a TestRunner");
+	}
+	return true, nil
+}
