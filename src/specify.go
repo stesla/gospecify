@@ -27,16 +27,16 @@ import(
 	"os";
 )
 
-type Test func() (bool, os.Error);
+type TestFunc func() (bool, os.Error);
 
 type Runner interface {
 	Fail(os.Error);
 	Finish();
 	Pass();
-	Run(Test);
+	Run(TestFunc);
 }
 
-func RunTest(test Test, runner Runner) {
+func RunTest(test TestFunc, runner Runner) {
 	if pass,err := test(); pass {
 		runner.Pass();
 	} else {
@@ -48,7 +48,7 @@ type Specification interface {
 	Before(func());
 	Run(Runner);
 	Describe(name string, description func());
-	It(name string, description ItBlock);
+	It(name string, description itBlock);
 }
 
 type specification struct {
@@ -74,9 +74,9 @@ func (self *specification) Describe(name string, description func()) {
 	self.describes.PushBack(describe);
 }
 
-type ItBlock func(the The);
+type itBlock func(the Test);
 
-func (self *specification) It(name string, description ItBlock) {
+func (self *specification) It(name string, description itBlock) {
 	it := makeIt(name);
 	it.description = description;
 	it.describe = self.currentDescribe;
@@ -127,13 +127,13 @@ func (self *describe) run(runner Runner) {
 
 func (self *describe) String() string { return self.name; }
 
-type The interface {
-	Value(Value) That;
+type Test interface {
+	Value(Value) *assertion;
 }
 
 type it struct {
 	name string;
-	description ItBlock;
+	description itBlock;
 	*describe;
 	*itRunner;
 }
@@ -153,18 +153,13 @@ func (self *it) run(runner Runner) {
 	}
 }
 
-func (self *it) Value(value Value) That {
-	return makeThat(self.describe, self, value);
+func (self *it) Value(value Value) *assertion {
+	return makeAssertion(self.describe, self, value);
 }
 
 func (self *it) String() string { return self.name; }
 
 type ValueTest func(Value) (bool, os.Error);
-
-type That interface {
-	Should(Matcher);
-	ShouldNot(Matcher);
-}
 
 type Matcher interface {
 	Should(Value) (bool, os.Error);
@@ -191,24 +186,24 @@ func (self *beMatcher) ShouldNot(actual Value) (pass bool, err os.Error) {
 	return true, nil;
 }
 
-type that struct {
+type assertion struct {
 	*describe;
 	*it;
 	value Value;
 	block ValueTest;
 }
 
-func makeThat(describe *describe, it *it, value Value) That {
-	return &that{describe:describe, it:it, value:value};
+func makeAssertion(describe *describe, it *it, value Value) *assertion {
+	return &assertion{describe:describe, it:it, value:value};
 }
 
-func (self *that) Should(matcher Matcher) {
+func (self *assertion) Should(matcher Matcher) {
 	self.it.Run(func() (bool, os.Error) {
 		return matcher.Should(self.value);
 	});
 }
 
-func (self *that) ShouldNot(matcher Matcher) {
+func (self *assertion) ShouldNot(matcher Matcher) {
 	self.it.Run(func() (bool, os.Error) {
 		return matcher.ShouldNot(self.value);
 	});
@@ -271,7 +266,7 @@ func (self *dotRunner) Finish() {
 	fmt.Println("");
 }
 
-func (self *dotRunner) Run(test Test) { RunTest(test, self); }
+func (self *dotRunner) Run(test TestFunc) { RunTest(test, self); }
 
 func (self *dotRunner) total() int { return self.passed + self.failed; }
 func (self *dotRunner) summary() string {
@@ -295,4 +290,4 @@ func (self *itRunner) Fail(err os.Error) {
 
 func (self *itRunner) Finish() {}
 func (self *itRunner) Pass() {}
-func (self *itRunner) Run(test Test) { RunTest(test, self); }
+func (self *itRunner) Run(test TestFunc) { RunTest(test, self); }

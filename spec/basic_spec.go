@@ -33,12 +33,12 @@ func init() {
 		Before(func () {
 			s := t.New();
 			s.Describe("Foo", func() {
-				s.It("pass", func(the t.The) {
+				s.It("pass", func(the t.Test) {
 					the.Value(7 * 6).Should(t.Be(42));
 					the.Value(1).ShouldNot(t.Be(2));
 				});
 
-				s.It("fail", func(the t.The) {
+				s.It("fail", func(the t.Test) {
 					the.Value(7 * 6).ShouldNot(t.Be(42));
 					the.Value(1).Should(t.Be(2));
 				});
@@ -46,15 +46,15 @@ func init() {
 			s.Run(runner);
 		});
 
-		It("fails", func(the sp.The) {
+		It("fails", func(the sp.Test) {
 			the.Value(runner).ShouldNot(BePassing);
 		});
 
-		It("counts only its that pass, not assertions", func(the sp.The) {
+		It("counts only its that pass, not assertions", func(the sp.Test) {
 			the.Value(runner.PassCount()).Should(Be(1));
 		});
 
-		It("counts only its that fail, not assertions", func(the sp.The) {
+		It("counts only its that fail, not assertions", func(the sp.Test) {
 			the.Value(runner.FailCount()).Should(Be(1));
 		})
 	});

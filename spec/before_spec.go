@@ -37,14 +37,14 @@ func init() {
 
 				s.Before(func() { val = 42 });
 
-				s.It("fail", func(the t.The) {
+				s.It("fail", func(the t.Test) {
 					the.Value(val).ShouldNot(t.Be(0));
 				});
 			});
 			s.Run(runner);
 		});
 
-		It("indicates a failing test", func(the sp.The) {
+		It("indicates a failing test", func(the sp.Test) {
 			the.Value(runner).Should(BePassing);
 		})
 	});

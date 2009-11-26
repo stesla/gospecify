@@ -64,7 +64,7 @@ func Describe(name string, block func()) {
 	spec.Describe(name, block);
 }
 
-func It(name string, block func(specify.The)) {
+func It(name string, block func(specify.Test)) {
 	spec.It(name, block);
 }
 

@@ -46,7 +46,7 @@ func (self *testRunner) FailCount() int { return self.failCount; }
 func (self *testRunner) Finish() {}
 func (self *testRunner) Pass() { self.passCount++; }
 func (self *testRunner) PassCount() int { return self.passCount; }
-func (self *testRunner) Run(test t.Test) { t.RunTest(test, self); }
+func (self *testRunner) Run(test t.TestFunc) { t.RunTest(test, self); }
 
 var BePassing passingMatcher;
 
