@@ -26,9 +26,7 @@ export GC
 export LD
 export O
 
-SRC=specify.go
-
-TEST_SRC=$(wildcard *_spec.go)
+SRC=$(wildcard *.go)
 
 all: test
 

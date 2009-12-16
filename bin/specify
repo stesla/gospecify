@@ -50,27 +50,23 @@ package main
 
 import "specify";
 
-var spec specify.Specification = specify.New();
+var runner specify.Runner = specify.NewRunner();
 
-func Be(value specify.Value) specify.Matcher {
-	return specify.Be(value);
-}
-
-func Before(block func()) {
-	spec.Before(block);
+func Before(block func(specify.Example)) {
+	runner.Before(block);
 }
 
 func Describe(name string, block func()) {
-	spec.Describe(name, block);
+	runner.Describe(name, block);
 }
 
-func It(name string, block func(specify.Test)) {
-	spec.It(name, block);
+func It(name string, block func(specify.Example)) {
+	runner.It(name, block);
 }
 
 func main() {
-	runner := specify.DotRunner();
-	spec.Run(runner);
+	reporter := specify.DotReporter();
+	runner.Run(reporter);
 }
 EOF
 }

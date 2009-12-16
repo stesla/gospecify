@@ -23,39 +23,51 @@ package specify
 
 import "os";
 
-type Runner interface {
-	Before(func(Example));
-	Describe(string, func());
-	It(string, func(Example));
-	Run(Reporter);
+type simpleExample struct {
+	name string;
+	block func(Example);
+	fields map[string] interface{};
+	fail chan os.Error;
 }
 
-func NewRunner() Runner { return makeRunner(); }
-
-type Reporter interface {
-	Fail(os.Error);
-	Finish();
-	Pass();
-	Pending();
+func makeSimpleExample(name string, block func(Example)) *simpleExample {
+	return &simpleExample{name, block, make(map[string] interface{}), make(chan os.Error)};
 }
 
-func DotReporter() Reporter { return makeDotReporter(); }
+func (self *simpleExample) Run(reporter Reporter, before func(Example)) {
+	if before != nil { before(self); }
 
-type Example interface {
-	GetField(string) interface{};
-	Field(string) Assertion;
-	SetField(string, interface{});
-	Value(interface{}) Assertion;
+	if self.block == nil {
+ 		reporter.Pending();
+		return;
+	}
+
+	pass := make(chan bool);
+	go func() {
+		self.block(self);
+		pass <- true;
+	}();
+	
+	select {
+	case err := <-self.fail:
+		reporter.Fail(err);
+	case <-pass:
+		reporter.Pass();
+	}
 }
 
-type Assertion interface {
-	Should(Matcher);
-	ShouldNot(Matcher);
+func (self *simpleExample) GetField(field string) (result interface{}) {
+	result,_ = self.fields[field];
+	return;
 }
 
-type Matcher interface {
-	Should(interface{}) os.Error;
-	ShouldNot(interface{}) os.Error;
+func (self *simpleExample) Field(field string) Assertion {
+	return self.Value(self.GetField(field));
 }
 
-func Be(value interface{}) Matcher { return makeBeMatcher(value); }
+func (self *simpleExample) SetField(field string, value interface{}) {
+	self.fields[field] = value;
+}
+
+func (self *simpleExample) Value(value interface{}) Assertion { return assertion{self, value}; 
+}

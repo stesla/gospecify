@@ -21,41 +21,35 @@ THE SOFTWARE.
 */
 package specify
 
-import "os";
+import "container/list";
 
-type Runner interface {
-	Before(func(Example));
-	Describe(string, func());
-	It(string, func(Example));
-	Run(Reporter);
+type example interface {
+	Run(Reporter, func(Example));
 }
 
-func NewRunner() Runner { return makeRunner(); }
-
-type Reporter interface {
-	Fail(os.Error);
-	Finish();
-	Pass();
-	Pending();
+type exampleCollection struct {
+	examples *list.List;
 }
 
-func DotReporter() Reporter { return makeDotReporter(); }
+func makeExampleCollection() *exampleCollection { return &exampleCollection{list.New()}; }
 
-type Example interface {
-	GetField(string) interface{};
-	Field(string) Assertion;
-	SetField(string, interface{});
-	Value(interface{}) Assertion;
+func (self *exampleCollection) Add(e example) {
+	self.examples.PushBack(e);
 }
 
-type Assertion interface {
-	Should(Matcher);
-	ShouldNot(Matcher);
+func (self *exampleCollection) Init(runner *runner) {
+	for i := range self.examples.Iter() {
+		if ex, ok := i.(*complexExample); ok {
+			runner.currentExample = ex;
+			ex.Init();
+		}
+	}
 }
 
-type Matcher interface {
-	Should(interface{}) os.Error;
-	ShouldNot(interface{}) os.Error;
+func (self *exampleCollection) Run(reporter Reporter, before func(Example)) {
+	for i := range self.examples.Iter() {
+		if ex, ok := i.(example); ok {
+			ex.Run(reporter, before);
+		}
+	}
 }
-
-func Be(value interface{}) Matcher { return makeBeMatcher(value); }

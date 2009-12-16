@@ -21,41 +21,29 @@ THE SOFTWARE.
 */
 package specify
 
-import "os";
-
-type Runner interface {
-	Before(func(Example));
-	Describe(string, func());
-	It(string, func(Example));
-	Run(Reporter);
+type runner struct {
+	examples *exampleCollection;
+	currentExample *complexExample;
 }
 
-func NewRunner() Runner { return makeRunner(); }
+func makeRunner() *runner { return &runner{examples:makeExampleCollection()}; }
 
-type Reporter interface {
-	Fail(os.Error);
-	Finish();
-	Pass();
-	Pending();
+func (self *runner) Before(block func(Example)) {
+	if self.currentExample == nil { return; }
+	self.currentExample.AddBefore(block);
 }
 
-func DotReporter() Reporter { return makeDotReporter(); }
-
-type Example interface {
-	GetField(string) interface{};
-	Field(string) Assertion;
-	SetField(string, interface{});
-	Value(interface{}) Assertion;
+func (self *runner) Describe(name string, block func()) {
+	self.examples.Add(makeComplexExample(name, block));
 }
 
-type Assertion interface {
-	Should(Matcher);
-	ShouldNot(Matcher);
+func (self *runner) It(name string, block func(Example)) {
+	if self.currentExample == nil { return; }
+	self.currentExample.Add(makeSimpleExample(name, block));
 }
 
-type Matcher interface {
-	Should(interface{}) os.Error;
-	ShouldNot(interface{}) os.Error;
+func (self *runner) Run(reporter Reporter) {
+	self.examples.Init(self);
+	self.examples.Run(reporter, func(Example){});
+	reporter.Finish();
 }
-
-func Be(value interface{}) Matcher { return makeBeMatcher(value); }

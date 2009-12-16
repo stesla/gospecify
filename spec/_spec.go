@@ -23,57 +23,30 @@ package main
 
 import(
 	"os";
-	"specify";
+//	"specify";
 	t "../src/testspecify";
 )
 
-type TestRunner interface {
-	t.Runner;
-	FailCount() int;
-	PassCount() int;
+type TestingReporter interface {
+	t.Reporter;
+	FailingExamples() int;
+	PassingExamples() int;
+	PendingExamples() int;
 }
 
-type testRunner struct {
-	failCount, passCount int;
+func makeTestReporter() TestingReporter {
+	return &testingReporter{};
 }
 
-func makeTestRunner() (result *testRunner) {
-	return &testRunner{};
+type testingReporter struct {
+	failing, passing, pending int;
 }
 
-func (self *testRunner) Fail(err os.Error) { self.failCount++; }
-func (self *testRunner) FailCount() int { return self.failCount; }
-func (self *testRunner) Finish() {}
-func (self *testRunner) Pass() { self.passCount++; }
-func (self *testRunner) PassCount() int { return self.passCount; }
-func (self *testRunner) Run(test t.TestFunc) { t.RunTest(test, self); }
+func (self *testingReporter) Fail(err os.Error) { self.failing++; }
+func (self *testingReporter) Finish() { }
+func (self *testingReporter) Pass() { self.passing++; }
+func (self *testingReporter) Pending() { self.pending++; }
 
-var BePassing passingMatcher;
-
-type passingMatcher int;
-
-type runnerTest func(TestRunner) (bool, os.Error);
-
-func withTestRunner(val specify.Value, test runnerTest) (bool, os.Error) {
-	runner, ok := val.(TestRunner);
-	if !ok { return false, os.NewError("not a TestRunner") }
-	return test(runner);
-}
-
-func (passingMatcher) Should(val specify.Value) (bool, os.Error) {
-	return withTestRunner(val, func(runner TestRunner) (pass bool, err os.Error) {
-		if pass = runner.FailCount() == 0; !pass {
-			err = os.NewError("expected runner to be passing, but it was not");
-		}
-		return;
-	});
-}
-
-func (passingMatcher) ShouldNot(val specify.Value) (bool, os.Error) {
-	return withTestRunner(val, func(runner TestRunner) (pass bool, err os.Error) {
-		if pass = runner.FailCount() > 0; !pass {
-			err = os.NewError("expected runner to be failing, but it was not");
-		}
-		return;
-	});
-}
+func (self *testingReporter) FailingExamples() int { return self.failing; }
+func (self *testingReporter) PassingExamples() int { return self.passing; }
+func (self *testingReporter) PendingExamples() int { return self.pending; }

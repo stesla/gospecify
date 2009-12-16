@@ -21,41 +21,28 @@ THE SOFTWARE.
 */
 package specify
 
-import "os";
+import (
+	"fmt";
+	"os";
+)
 
-type Runner interface {
-	Before(func(Example));
-	Describe(string, func());
-	It(string, func(Example));
-	Run(Reporter);
+type beMatcher struct {
+	expected interface{};
 }
 
-func NewRunner() Runner { return makeRunner(); }
+func makeBeMatcher(value interface{}) Matcher { return beMatcher{value}; }
 
-type Reporter interface {
-	Fail(os.Error);
-	Finish();
-	Pass();
-	Pending();
+func (self beMatcher) Should(actual interface{}) (error os.Error) {
+	if actual != self.expected {
+		error = os.NewError(fmt.Sprintf("expected `%v` to be `%v`", actual, self.expected));
+	}
+	return;
+}
+ 
+func (self beMatcher) ShouldNot(actual interface{}) (error os.Error) {
+	if actual == self.expected {
+		error = os.NewError(fmt.Sprintf("expected `%v` not to be `%v`", actual, self.expected));
+	}
+	return;
 }
 
-func DotReporter() Reporter { return makeDotReporter(); }
-
-type Example interface {
-	GetField(string) interface{};
-	Field(string) Assertion;
-	SetField(string, interface{});
-	Value(interface{}) Assertion;
-}
-
-type Assertion interface {
-	Should(Matcher);
-	ShouldNot(Matcher);
-}
-
-type Matcher interface {
-	Should(interface{}) os.Error;
-	ShouldNot(interface{}) os.Error;
-}
-
-func Be(value interface{}) Matcher { return makeBeMatcher(value); }

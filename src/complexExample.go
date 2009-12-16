@@ -21,41 +21,20 @@ THE SOFTWARE.
 */
 package specify
 
-import "os";
-
-type Runner interface {
-	Before(func(Example));
-	Describe(string, func());
-	It(string, func(Example));
-	Run(Reporter);
+type complexExample struct {
+	name string;
+	beforeBlock func(Example);
+	block func();
+	*exampleCollection;
 }
 
-func NewRunner() Runner { return makeRunner(); }
-
-type Reporter interface {
-	Fail(os.Error);
-	Finish();
-	Pass();
-	Pending();
+func makeComplexExample(name string, block func()) *complexExample {
+	return &complexExample{name, func(Example){}, block, makeExampleCollection()};
 }
 
-func DotReporter() Reporter { return makeDotReporter(); }
-
-type Example interface {
-	GetField(string) interface{};
-	Field(string) Assertion;
-	SetField(string, interface{});
-	Value(interface{}) Assertion;
+func (self *complexExample) AddBefore(block func(Example)) { self.beforeBlock = block; }
+func (self *complexExample) Init() { self.block(); }
+func (self *complexExample) Run(reporter Reporter, _ func(Example)) {
+	/* TODO: Nested describes get weird with before blocks */
+	self.exampleCollection.Run(reporter, self.beforeBlock);
 }
-
-type Assertion interface {
-	Should(Matcher);
-	ShouldNot(Matcher);
-}
-
-type Matcher interface {
-	Should(interface{}) os.Error;
-	ShouldNot(interface{}) os.Error;
-}
-
-func Be(value interface{}) Matcher { return makeBeMatcher(value); }

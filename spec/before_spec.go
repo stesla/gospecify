@@ -22,30 +22,30 @@ THE SOFTWARE.
 package main
 
 import(
-	sp "specify";
+	. "specify";
 	t  "../src/testspecify";
 )
 
 func init() {
 	Describe("Before", func() {
-		runner := makeTestRunner();
+		reporter := makeTestReporter();
 
-		Before(func () {
-			s := t.New();
-			s.Describe("Foo", func() {
-				var val int;
+		Before(func (the Example) {
+			runner := t.NewRunner();
+			runner.Describe("Foo", func() {
+ 				runner.Before(func(the t.Example) {
+					the.SetField("value", 42);
+				});
 
-				s.Before(func() { val = 42 });
-
-				s.It("fail", func(the t.Test) {
-					the.Value(val).ShouldNot(t.Be(0));
+				runner.It("should set the value", func(the t.Example) {
+					the.Field("value").Should(t.Be(42));
 				});
 			});
-			s.Run(runner);
+			runner.Run(reporter);
 		});
 
-		It("indicates a failing test", func(the sp.Test) {
-			the.Value(runner).Should(BePassing);
+		It("passed", func(the Example) {
+			the.Value(reporter.PassingExamples()).Should(Be(1));
 		})
 	});
 }

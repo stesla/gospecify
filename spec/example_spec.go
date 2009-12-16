@@ -21,22 +21,22 @@ THE SOFTWARE.
 */
 package main
 
-import sp "specify"
+import . "specify";
 
 func init() {
 	Describe("Math", func() {
-		It("adds", func(the sp.Test) {
+		It("adds", func(the Example) {
 			the.Value(1 + 1).Should(Be(2));
 		});
 
-		It("multiplies", func(the sp.Test) {
+		It("multiplies", func(the Example) {
 			the.Value(3 * 3).Should(Be(9));
 			the.Value(2 * 4).ShouldNot(Be(6));
 		});
 	});
 
 	Describe("String", func() {
-		It("concatenates", func(the sp.Test) {
+		It("concatenates", func(the Example) {
 			the.Value("Doctor" + "Donna").Should(Be("DoctorDonna"));
 			the.Value("foo" + "bar").ShouldNot(Be("bar"));
 		});

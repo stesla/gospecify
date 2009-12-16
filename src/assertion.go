@@ -21,41 +21,29 @@ THE SOFTWARE.
 */
 package specify
 
-import "os";
+import(
+	"os";
+	"runtime";
+)
 
-type Runner interface {
-	Before(func(Example));
-	Describe(string, func());
-	It(string, func(Example));
-	Run(Reporter);
+type assertion struct {
+	example *simpleExample;
+	value interface{};
 }
 
-func NewRunner() Runner { return makeRunner(); }
-
-type Reporter interface {
-	Fail(os.Error);
-	Finish();
-	Pass();
-	Pending();
+func (self assertion) fail(err os.Error) {
+	self.example.fail <- err;
+	runtime.Goexit();
 }
 
-func DotReporter() Reporter { return makeDotReporter(); }
-
-type Example interface {
-	GetField(string) interface{};
-	Field(string) Assertion;
-	SetField(string, interface{});
-	Value(interface{}) Assertion;
+func (self assertion) Should(matcher Matcher) {
+	if err := matcher.Should(self.value); err != nil {
+		self.fail(err)
+	}
 }
-
-type Assertion interface {
-	Should(Matcher);
-	ShouldNot(Matcher);
+ 
+func (self assertion) ShouldNot(matcher Matcher) {
+	if err := matcher.ShouldNot(self.value); err != nil {
+		self.fail(err);
+	}
 }
-
-type Matcher interface {
-	Should(interface{}) os.Error;
-	ShouldNot(interface{}) os.Error;
-}
-
-func Be(value interface{}) Matcher { return makeBeMatcher(value); }

@@ -22,40 +22,48 @@ THE SOFTWARE.
 package main
 
 import(
-	sp "specify";
+	. "specify";
 	t  "../src/testspecify";
 )
 
 func init() {
-	Describe("Specification", func() {
-		runner := makeTestRunner();
-
-		Before(func () {
-			s := t.New();
-			s.Describe("Foo", func() {
-				s.It("pass", func(the t.Test) {
+	Describe("Running", func() {
+		Before(func (the Example) {
+			runner := t.NewRunner();
+			runner.Describe("Foo", func() {
+				runner.It("pass", func(the t.Example) {
 					the.Value(7 * 6).Should(t.Be(42));
 					the.Value(1).ShouldNot(t.Be(2));
 				});
 
-				s.It("fail", func(the t.Test) {
+				runner.It("fail", func(the t.Example) {
 					the.Value(7 * 6).ShouldNot(t.Be(42));
 					the.Value(1).Should(t.Be(2));
 				});
+
+				runner.It("pending", nil);
 			});
-			s.Run(runner);
+			reporter := makeTestReporter();
+			the.SetField("reporter", reporter);
+			runner.Run(reporter);
 		});
 
-		It("fails", func(the sp.Test) {
-			the.Value(runner).ShouldNot(BePassing);
+		It("counts passing examples", func(the Example) {
+			reporter, ok := the.GetField("reporter").(TestingReporter);
+			the.Value(ok).Should(Be(true));
+			the.Value(reporter.PassingExamples()).Should(Be(1));
 		});
 
-		It("counts only its that pass, not assertions", func(the sp.Test) {
-			the.Value(runner.PassCount()).Should(Be(1));
+		It("counts failing examples", func(the Example) {
+			reporter, ok := the.GetField("reporter").(TestingReporter);
+			the.Value(ok).Should(Be(true));
+			the.Value(reporter.FailingExamples()).Should(Be(1));
 		});
 
-		It("counts only its that fail, not assertions", func(the sp.Test) {
-			the.Value(runner.FailCount()).Should(Be(1));
-		})
+		It("counts pending examples", func(the Example) {
+			reporter, ok := the.GetField("reporter").(TestingReporter);
+			the.Value(ok).Should(Be(true));
+			the.Value(reporter.PendingExamples()).Should(Be(1));
+		});
 	});
 }

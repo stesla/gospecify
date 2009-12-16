@@ -21,41 +21,39 @@ THE SOFTWARE.
 */
 package specify
 
-import "os";
+import(
+	"container/list";
+	"fmt";
+	"os";
+)
 
-type Runner interface {
-	Before(func(Example));
-	Describe(string, func());
-	It(string, func(Example));
-	Run(Reporter);
+type dotReporter struct {
+	passing, failing, pending int;
+	failures *list.List;
 }
 
-func NewRunner() Runner { return makeRunner(); }
+func makeDotReporter() Reporter { return &dotReporter{failures:list.New()}; }
 
-type Reporter interface {
-	Fail(os.Error);
-	Finish();
-	Pass();
-	Pending();
+func (self *dotReporter) Fail(err os.Error) {
+	self.failing++;
+	self.failures.PushBack(err);
+	fmt.Print("F");
 }
 
-func DotReporter() Reporter { return makeDotReporter(); }
-
-type Example interface {
-	GetField(string) interface{};
-	Field(string) Assertion;
-	SetField(string, interface{});
-	Value(interface{}) Assertion;
+func (self *dotReporter) Finish() {
+	fmt.Println("");
+	for i := range self.failures.Iter() {
+		fmt.Println("-", i);
+	}
+	fmt.Printf("Passing: %v Failing: %v Pending: %v\n", self.passing, self.failing, self.pending);
 }
 
-type Assertion interface {
-	Should(Matcher);
-	ShouldNot(Matcher);
+func (self *dotReporter) Pass() {
+	self.passing++;
+	fmt.Print(".");
 }
 
-type Matcher interface {
-	Should(interface{}) os.Error;
-	ShouldNot(interface{}) os.Error;
+func (self *dotReporter) Pending() {
+	self.pending++;
+	fmt.Print("*");
 }
-
-func Be(value interface{}) Matcher { return makeBeMatcher(value); }
