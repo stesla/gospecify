@@ -48,6 +48,18 @@ func init() {
 			runner.Run(reporter);
 
 			the.Value(reporter.PassingExamples()).Should(Be(2));
-		})
+		});
+
+		It("should fail examples if assertions fail in the before block", func(the Example) {
+			runner := t.NewRunner();
+			runner.Describe("Foo", func() {
+				runner.Before(func(the t.Example) { the.Value(1).Should(Be(2)) });
+				runner.It("should fail in before", func(the t.Example) {});
+			});
+			reporter := makeTestReporter();
+			runner.Run(reporter);
+
+			the.Value(reporter.FailingExamples()).Should(Be(1));
+		});
 	})
 }

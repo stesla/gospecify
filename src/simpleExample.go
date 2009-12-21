@@ -35,10 +35,6 @@ func makeSimpleExample(name string, block func(Example)) *simpleExample {
 }
 
 func (self *simpleExample) Run(reporter Reporter, before func(Example)) {
-	if before != nil {
-		before(self)
-	}
-
 	if self.block == nil {
 		reporter.Pending();
 		return;
@@ -46,6 +42,10 @@ func (self *simpleExample) Run(reporter Reporter, before func(Example)) {
 
 	pass := make(chan bool);
 	go func() {
+		if before != nil {
+			before(self)
+		}
+
 		self.block(self);
 		pass <- true;
 	}();
