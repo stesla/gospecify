@@ -21,31 +21,25 @@ THE SOFTWARE.
 */
 package main
 
-import(
+import (
 	. "specify";
-	t  "../src/testspecify";
+	t "../src/testspecify";
 )
 
 func init() {
 	Describe("Before", func() {
 		reporter := makeTestReporter();
 
-		Before(func (the Example) {
+		Before(func(the Example) {
 			runner := t.NewRunner();
 			runner.Describe("Foo", func() {
- 				runner.Before(func(the t.Example) {
-					the.SetField("value", 42);
-				});
+				runner.Before(func(the t.Example) { the.SetField("value", 42) });
 
-				runner.It("should set the value", func(the t.Example) {
-					the.Field("value").Should(t.Be(42));
-				});
+				runner.It("should set the value", func(the t.Example) { the.Field("value").Should(t.Be(42)) });
 			});
 			runner.Run(reporter);
 		});
 
-		It("passed", func(the Example) {
-			the.Value(reporter.PassingExamples()).Should(Be(1));
-		})
-	});
+		It("passed", func(the Example) { the.Value(reporter.PassingExamples()).Should(Be(1)) });
+	})
 }

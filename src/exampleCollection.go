@@ -21,7 +21,7 @@ THE SOFTWARE.
 */
 package specify
 
-import "container/list";
+import "container/list"
 
 type example interface {
 	Run(Reporter, func(Example));
@@ -31,11 +31,11 @@ type exampleCollection struct {
 	examples *list.List;
 }
 
-func makeExampleCollection() *exampleCollection { return &exampleCollection{list.New()}; }
-
-func (self *exampleCollection) Add(e example) {
-	self.examples.PushBack(e);
+func makeExampleCollection() *exampleCollection {
+	return &exampleCollection{list.New()}
 }
+
+func (self *exampleCollection) Add(e example)	{ self.examples.PushBack(e) }
 
 func (self *exampleCollection) Init(runner *runner) {
 	for i := range self.examples.Iter() {
@@ -49,7 +49,7 @@ func (self *exampleCollection) Init(runner *runner) {
 func (self *exampleCollection) Run(reporter Reporter, before func(Example)) {
 	for i := range self.examples.Iter() {
 		if ex, ok := i.(example); ok {
-			ex.Run(reporter, before);
+			ex.Run(reporter, before)
 		}
 	}
 }

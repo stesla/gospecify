@@ -21,18 +21,18 @@ THE SOFTWARE.
 */
 package specify
 
-import(
+import (
 	"container/list";
 	"fmt";
 	"os";
 )
 
 type dotReporter struct {
-	passing, failing, pending int;
-	failures *list.List;
+	passing, failing, pending	int;
+	failures			*list.List;
 }
 
-func makeDotReporter() Reporter { return &dotReporter{failures:list.New()}; }
+func makeDotReporter() Reporter	{ return &dotReporter{failures: list.New()} }
 
 func (self *dotReporter) Fail(err os.Error) {
 	self.failing++;
@@ -43,7 +43,7 @@ func (self *dotReporter) Fail(err os.Error) {
 func (self *dotReporter) Finish() {
 	fmt.Println("");
 	for i := range self.failures.Iter() {
-		fmt.Println("-", i);
+		fmt.Println("-", i)
 	}
 	fmt.Printf("Passing: %v Failing: %v Pending: %v\n", self.passing, self.failing, self.pending);
 }

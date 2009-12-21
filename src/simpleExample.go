@@ -21,24 +21,26 @@ THE SOFTWARE.
 */
 package specify
 
-import "os";
+import "os"
 
 type simpleExample struct {
-	name string;
-	block func(Example);
-	fields map[string] interface{};
-	fail chan os.Error;
+	name	string;
+	block	func(Example);
+	fields	map[string]interface{};
+	fail	chan os.Error;
 }
 
 func makeSimpleExample(name string, block func(Example)) *simpleExample {
-	return &simpleExample{name, block, make(map[string] interface{}), make(chan os.Error)};
+	return &simpleExample{name, block, make(map[string]interface{}), make(chan os.Error)}
 }
 
 func (self *simpleExample) Run(reporter Reporter, before func(Example)) {
-	if before != nil { before(self); }
+	if before != nil {
+		before(self)
+	}
 
 	if self.block == nil {
- 		reporter.Pending();
+		reporter.Pending();
 		return;
 	}
 
@@ -47,27 +49,28 @@ func (self *simpleExample) Run(reporter Reporter, before func(Example)) {
 		self.block(self);
 		pass <- true;
 	}();
-	
+
 	select {
 	case err := <-self.fail:
-		reporter.Fail(err);
+		reporter.Fail(err)
 	case <-pass:
-		reporter.Pass();
+		reporter.Pass()
 	}
 }
 
 func (self *simpleExample) GetField(field string) (result interface{}) {
-	result,_ = self.fields[field];
+	result, _ = self.fields[field];
 	return;
 }
 
 func (self *simpleExample) Field(field string) Assertion {
-	return self.Value(self.GetField(field));
+	return self.Value(self.GetField(field))
 }
 
 func (self *simpleExample) SetField(field string, value interface{}) {
-	self.fields[field] = value;
+	self.fields[field] = value
 }
 
-func (self *simpleExample) Value(value interface{}) Assertion { return assertion{self, value}; 
+func (self *simpleExample) Value(value interface{}) Assertion {
+	return assertion{self, value}
 }

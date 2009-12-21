@@ -30,19 +30,18 @@ type beMatcher struct {
 	expected interface{};
 }
 
-func makeBeMatcher(value interface{}) Matcher { return beMatcher{value}; }
+func makeBeMatcher(value interface{}) Matcher	{ return beMatcher{value} }
 
 func (self beMatcher) Should(actual interface{}) (error os.Error) {
 	if actual != self.expected {
-		error = os.NewError(fmt.Sprintf("expected `%v` to be `%v`", actual, self.expected));
-	}
-	return;
-}
- 
-func (self beMatcher) ShouldNot(actual interface{}) (error os.Error) {
-	if actual == self.expected {
-		error = os.NewError(fmt.Sprintf("expected `%v` not to be `%v`", actual, self.expected));
+		error = os.NewError(fmt.Sprintf("expected `%v` to be `%v`", actual, self.expected))
 	}
 	return;
 }
 
+func (self beMatcher) ShouldNot(actual interface{}) (error os.Error) {
+	if actual == self.expected {
+		error = os.NewError(fmt.Sprintf("expected `%v` not to be `%v`", actual, self.expected))
+	}
+	return;
+}

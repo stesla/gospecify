@@ -21,14 +21,14 @@ THE SOFTWARE.
 */
 package main
 
-import(
+import (
 	. "specify";
-	t  "../src/testspecify";
+	t "../src/testspecify";
 )
 
 func init() {
 	Describe("Running", func() {
-		Before(func (the Example) {
+		Before(func(the Example) {
 			runner := t.NewRunner();
 			runner.Describe("Foo", func() {
 				runner.It("pass", func(the t.Example) {
@@ -65,5 +65,5 @@ func init() {
 			the.Value(ok).Should(Be(true));
 			the.Value(reporter.PendingExamples()).Should(Be(1));
 		});
-	});
+	})
 }

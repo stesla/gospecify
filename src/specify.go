@@ -21,7 +21,7 @@ THE SOFTWARE.
 */
 package specify
 
-import "os";
+import "os"
 
 type Runner interface {
 	Before(func(Example));
@@ -30,7 +30,7 @@ type Runner interface {
 	Run(Reporter);
 }
 
-func NewRunner() Runner { return makeRunner(); }
+func NewRunner() Runner	{ return makeRunner() }
 
 type Reporter interface {
 	Fail(os.Error);
@@ -39,7 +39,7 @@ type Reporter interface {
 	Pending();
 }
 
-func DotReporter() Reporter { return makeDotReporter(); }
+func DotReporter() Reporter	{ return makeDotReporter() }
 
 type Example interface {
 	GetField(string) interface{};
@@ -58,4 +58,4 @@ type Matcher interface {
 	ShouldNot(interface{}) os.Error;
 }
 
-func Be(value interface{}) Matcher { return makeBeMatcher(value); }
+func Be(value interface{}) Matcher	{ return makeBeMatcher(value) }

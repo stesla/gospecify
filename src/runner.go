@@ -22,28 +22,32 @@ THE SOFTWARE.
 package specify
 
 type runner struct {
-	examples *exampleCollection;
-	currentExample *complexExample;
+	examples	*exampleCollection;
+	currentExample	*complexExample;
 }
 
-func makeRunner() *runner { return &runner{examples:makeExampleCollection()}; }
+func makeRunner() *runner	{ return &runner{examples: makeExampleCollection()} }
 
 func (self *runner) Before(block func(Example)) {
-	if self.currentExample == nil { return; }
+	if self.currentExample == nil {
+		return
+	}
 	self.currentExample.AddBefore(block);
 }
 
 func (self *runner) Describe(name string, block func()) {
-	self.examples.Add(makeComplexExample(name, block));
+	self.examples.Add(makeComplexExample(name, block))
 }
 
 func (self *runner) It(name string, block func(Example)) {
-	if self.currentExample == nil { return; }
+	if self.currentExample == nil {
+		return
+	}
 	self.currentExample.Add(makeSimpleExample(name, block));
 }
 
 func (self *runner) Run(reporter Reporter) {
 	self.examples.Init(self);
-	self.examples.Run(reporter, func(Example){});
+	self.examples.Run(reporter, func(Example) {});
 	reporter.Finish();
 }

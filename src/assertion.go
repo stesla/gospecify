@@ -21,14 +21,14 @@ THE SOFTWARE.
 */
 package specify
 
-import(
+import (
 	"os";
 	"runtime";
 )
 
 type assertion struct {
-	example *simpleExample;
-	value interface{};
+	example	*simpleExample;
+	value	interface{};
 }
 
 func (self assertion) fail(err os.Error) {
@@ -41,9 +41,9 @@ func (self assertion) Should(matcher Matcher) {
 		self.fail(err)
 	}
 }
- 
+
 func (self assertion) ShouldNot(matcher Matcher) {
 	if err := matcher.ShouldNot(self.value); err != nil {
-		self.fail(err);
+		self.fail(err)
 	}
 }

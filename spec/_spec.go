@@ -21,9 +21,8 @@ THE SOFTWARE.
 */
 package main
 
-import(
+import (
 	"os";
-//	"specify";
 	t "../src/testspecify";
 )
 
@@ -34,19 +33,25 @@ type TestingReporter interface {
 	PendingExamples() int;
 }
 
-func makeTestReporter() TestingReporter {
-	return &testingReporter{};
-}
+func makeTestReporter() TestingReporter	{ return &testingReporter{} }
 
 type testingReporter struct {
 	failing, passing, pending int;
 }
 
-func (self *testingReporter) Fail(err os.Error) { self.failing++; }
-func (self *testingReporter) Finish() { }
-func (self *testingReporter) Pass() { self.passing++; }
-func (self *testingReporter) Pending() { self.pending++; }
+func (self *testingReporter) Fail(err os.Error) {
+	self.failing++
+}
+func (self *testingReporter) Finish()	{}
+func (self *testingReporter) Pass()	{ self.passing++ }
+func (self *testingReporter) Pending()	{ self.pending++ }
 
-func (self *testingReporter) FailingExamples() int { return self.failing; }
-func (self *testingReporter) PassingExamples() int { return self.passing; }
-func (self *testingReporter) PendingExamples() int { return self.pending; }
+func (self *testingReporter) FailingExamples() int {
+	return self.failing
+}
+func (self *testingReporter) PassingExamples() int {
+	return self.passing
+}
+func (self *testingReporter) PendingExamples() int {
+	return self.pending
+}
