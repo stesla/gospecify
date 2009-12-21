@@ -33,7 +33,13 @@ type TestingReporter interface {
 	PendingExamples() int;
 }
 
-func makeTestReporter() TestingReporter	{ return &testingReporter{} }
+func testRun(block func(t.Runner)) (reporter TestingReporter) {
+	runner := t.NewRunner();
+	runner.Describe("", func() { block(runner) });
+	reporter = &testingReporter{};
+	runner.Run(reporter);
+	return
+}
 
 type testingReporter struct {
 	failing, passing, pending int;

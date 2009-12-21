@@ -29,8 +29,7 @@ import (
 func init() {
 	Describe("Running", func() {
 		Before(func(the Example) {
-			runner := t.NewRunner();
-			runner.Describe("Foo", func() {
+			reporter := testRun(func(runner t.Runner) {
 				runner.It("pass", func(the t.Example) {
 					the.Value(7 * 6).Should(t.Be(42));
 					the.Value(1).ShouldNot(t.Be(2));
@@ -43,9 +42,7 @@ func init() {
 
 				runner.It("pending", nil);
 			});
-			reporter := makeTestReporter();
 			the.SetField("reporter", reporter);
-			runner.Run(reporter);
 		});
 
 		It("counts passing examples", func(the Example) {
