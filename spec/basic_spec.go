@@ -29,18 +29,18 @@ import (
 func init() {
 	Describe("Running", func() {
 		Before(func(the Example) {
-			reporter := testRun(func(runner t.Runner) {
-				runner.It("pass", func(the t.Example) {
+			reporter := testRun(func(r t.Runner) {
+				r.It("pass", func(the t.Example) {
 					the.Value(7 * 6).Should(t.Be(42));
 					the.Value(1).ShouldNot(t.Be(2));
 				});
 
-				runner.It("fail", func(the t.Example) {
+				r.It("fail", func(the t.Example) {
 					the.Value(7 * 6).ShouldNot(t.Be(42));
 					the.Value(1).Should(t.Be(2));
 				});
 
-				runner.It("pending", nil);
+				r.It("pending", nil);
 			});
 			the.SetField("reporter", reporter);
 		});

@@ -29,15 +29,15 @@ import (
 func init() {
 	Describe("Before", func() {
 		It("should run the block before each test", func(the Example) {
-			reporter := testRun(func(runner t.Runner) {
-				runner.Before(func(the t.Example) { the.SetField("value", 42) });
+			reporter := testRun(func(r t.Runner) {
+				r.Before(func(the t.Example) { the.SetField("value", 42) });
 
-				runner.It("should set the value this time", func(the t.Example) {
+				r.It("should set the value this time", func(the t.Example) {
 					the.Field("value").Should(t.Be(42));
 					the.SetField("value", 24);
 				});
 
-				runner.It("should set this time too", func(the t.Example) {
+				r.It("should set this time too", func(the t.Example) {
 					the.Field("value").Should(t.Be(42));
 					the.SetField("value", 24);
 				});
@@ -48,9 +48,9 @@ func init() {
 		});
 
 		It("should fail examples if assertions fail in the before block", func(the Example) {
-			reporter := testRun(func(runner t.Runner) {
-				runner.Before(func(the t.Example) { the.Value(1).Should(Be(2)) });
-				runner.It("should fail in before", func(the t.Example) {});
+			reporter := testRun(func(r t.Runner) {
+				r.Before(func(the t.Example) { the.Value(1).Should(Be(2)) });
+				r.It("should fail in before", func(the t.Example) {});
 			});
 
 			the.Value(reporter.FailingExamples()).Should(Be(1));
