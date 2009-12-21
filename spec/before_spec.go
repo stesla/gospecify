@@ -28,18 +28,26 @@ import (
 
 func init() {
 	Describe("Before", func() {
-		reporter := makeTestReporter();
-
-		Before(func(the Example) {
+		It("should run the block before each test", func(the Example) {
 			runner := t.NewRunner();
 			runner.Describe("Foo", func() {
 				runner.Before(func(the t.Example) { the.SetField("value", 42) });
 
-				runner.It("should set the value", func(the t.Example) { the.Field("value").Should(t.Be(42)) });
-			});
-			runner.Run(reporter);
-		});
+				runner.It("should set the value this time", func(the t.Example) {
+					the.Field("value").Should(t.Be(42));
+					the.SetField("value", 24);
+				});
 
-		It("passed", func(the Example) { the.Value(reporter.PassingExamples()).Should(Be(1)) });
+				runner.It("should set this time too", func(the t.Example) {
+					the.Field("value").Should(t.Be(42));
+					the.SetField("value", 24);
+				});
+
+			});
+			reporter := makeTestReporter();
+			runner.Run(reporter);
+
+			the.Value(reporter.PassingExamples()).Should(Be(2));
+		})
 	})
 }
