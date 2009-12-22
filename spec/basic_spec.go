@@ -45,22 +45,8 @@ func init() {
 			the.SetField("reporter", reporter);
 		});
 
-		It("counts passing examples", func(the Example) {
-			reporter, ok := the.GetField("reporter").(TestingReporter);
-			the.Value(ok).Should(Be(true));
-			the.Value(reporter.PassingExamples()).Should(Be(1));
-		});
-
-		It("counts failing examples", func(the Example) {
-			reporter, ok := the.GetField("reporter").(TestingReporter);
-			the.Value(ok).Should(Be(true));
-			the.Value(reporter.FailingExamples()).Should(Be(1));
-		});
-
-		It("counts pending examples", func(the Example) {
-			reporter, ok := the.GetField("reporter").(TestingReporter);
-			the.Value(ok).Should(Be(true));
-			the.Value(reporter.PendingExamples()).Should(Be(1));
-		});
+		It("counts passing examples", func(the Example) { the.Field("reporter").Should(HavePassing(1)) });
+		It("counts failing examples", func(the Example) { the.Field("reporter").Should(HaveFailing(1)) });
+		It("counts pending examples", func(the Example) { the.Field("reporter").Should(HavePending(1)) });
 	})
 }

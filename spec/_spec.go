@@ -23,6 +23,7 @@ package main
 
 import (
 	"os";
+	"specify";
 	t "../src/testspecify";
 )
 
@@ -38,7 +39,7 @@ func testRun(block func(t.Runner)) (reporter TestingReporter) {
 	runner.Describe("", func() { block(runner) });
 	reporter = &testingReporter{};
 	runner.Run(reporter);
-	return
+	return;
 }
 
 type testingReporter struct {
@@ -60,4 +61,42 @@ func (self *testingReporter) PassingExamples() int {
 }
 func (self *testingReporter) PendingExamples() int {
 	return self.pending
+}
+
+func HavePassing(expected interface{}) specify.Matcher {
+	return reporterMatcher{expected, func(r TestingReporter) interface{} { return r.PassingExamples() }}
+}
+
+func HavePending(expected interface{}) specify.Matcher {
+	return reporterMatcher{expected, func(r TestingReporter) interface{} { return r.PendingExamples() }}
+}
+
+func HaveFailing(expected interface{}) specify.Matcher {
+	return reporterMatcher{expected, func(r TestingReporter) interface{} { return r.FailingExamples() }}
+}
+
+type reporterMatcher struct {
+	expected	interface{};
+	actualFunc	func(TestingReporter) interface{};
+}
+
+func toTestingReporter(value interface{}) (reporter TestingReporter, err os.Error) {
+	var ok bool;
+	if reporter, ok = value.(TestingReporter); !ok {
+		err = os.NewError("Not a TestingReporter")
+	}
+	return;
+}
+
+func (self reporterMatcher) Should(actual interface{}) (result os.Error) {
+	if reporter, error := toTestingReporter(actual); error != nil {
+		result = specify.Be(self.expected).Should(self.actualFunc(reporter))
+	}
+	return;
+}
+func (self reporterMatcher) ShouldNot(actual interface{}) (result os.Error) {
+	if reporter, error := toTestingReporter(actual); error != nil {
+		result = specify.Be(self.expected).ShouldNot(self.actualFunc(reporter))
+	}
+	return;
 }

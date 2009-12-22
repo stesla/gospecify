@@ -44,7 +44,7 @@ func init() {
 
 			});
 
-			the.Value(reporter.PassingExamples()).Should(Be(2));
+			the.Value(reporter).Should(HavePassing(2));
 		});
 
 		It("should fail examples if assertions fail in the before block", func(the Example) {
@@ -53,7 +53,7 @@ func init() {
 				r.It("should fail in before", func(the t.Example) {});
 			});
 
-			the.Value(reporter.FailingExamples()).Should(Be(1));
+			the.Value(reporter).Should(HaveFailing(1));
 		});
 	})
 }
