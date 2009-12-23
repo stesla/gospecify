@@ -52,6 +52,10 @@ import "specify";
 
 var runner specify.Runner = specify.NewRunner();
 
+func After(block func(specify.Example)) {
+	runner.After(block);
+}
+
 func Before(block func(specify.Example)) {
 	runner.Before(block);
 }
