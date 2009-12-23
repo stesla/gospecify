@@ -48,5 +48,6 @@ func init() {
 		It("counts passing examples", func(the Example) { the.Field("reporter").Should(HavePassing(1)) });
 		It("counts failing examples", func(the Example) { the.Field("reporter").Should(HaveFailing(1)) });
 		It("counts pending examples", func(the Example) { the.Field("reporter").Should(HavePending(1)) });
+		It("includes the example name in the failure message", nil);
 	})
 }
