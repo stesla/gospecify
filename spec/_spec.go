@@ -22,7 +22,11 @@ THE SOFTWARE.
 package main
 
 import (
+	"container/list";
+	"fmt";
 	"os";
+	"strings";
+
 	"specify";
 	t "../src/testspecify";
 )
@@ -32,35 +36,48 @@ type TestingReporter interface {
 	FailingExamples() int;
 	PassingExamples() int;
 	PendingExamples() int;
+	HaveFailureIncluding(string) bool;
 }
 
 func testRun(block func(t.Runner)) (reporter TestingReporter) {
 	runner := t.NewRunner();
 	runner.Describe("", func() { block(runner) });
-	reporter = &testingReporter{};
+	reporter = newTestingReporter();
 	runner.Run(reporter);
 	return;
 }
 
+func newTestingReporter() *testingReporter	{ return &testingReporter{failures: list.New()} }
+
 type testingReporter struct {
-	failing, passing, pending int;
+	passing, pending	int;
+	failures		*list.List;
 }
 
 func (self *testingReporter) Fail(err os.Error) {
-	self.failing++
+	self.failures.PushBack(err)
 }
 func (self *testingReporter) Finish()	{}
 func (self *testingReporter) Pass()	{ self.passing++ }
 func (self *testingReporter) Pending()	{ self.pending++ }
 
 func (self *testingReporter) FailingExamples() int {
-	return self.failing
+	return self.failures.Len()
 }
 func (self *testingReporter) PassingExamples() int {
 	return self.passing
 }
 func (self *testingReporter) PendingExamples() int {
 	return self.pending
+}
+func (self *testingReporter) HaveFailureIncluding(s string) bool {
+	for val := range self.failures.Iter() {
+		err, _ := val.(os.Error);
+		if strings.Count(err.String(), s) > 0 {
+			return true
+		}
+	}
+	return false;
 }
 
 func HavePassing(expected interface{}) specify.Matcher {
@@ -103,4 +120,24 @@ func (self reporterMatcher) ShouldNot(actual interface{}) (result os.Error) {
 		result = specify.Be(self.expected).ShouldNot(self.actualFunc(reporter))
 	}
 	return;
+}
+
+func HaveFailureIncluding(s string) haveFailureMatcher {
+	return (haveFailureMatcher)(s)
+}
+
+type haveFailureMatcher string
+
+func (s haveFailureMatcher) Should(val interface{}) os.Error {
+	if reporter, error := toTestingReporter(val); error != nil {
+		return error
+	} else {
+		if !reporter.HaveFailureIncluding((string)(s)) {
+			return os.NewError(fmt.Sprintf("expected error including `%v`", s))
+		}
+	}
+	return nil;
+}
+func (haveFailureMatcher) ShouldNot(val interface{}) os.Error {
+	return os.NewError("matcher not implemented")
 }

@@ -21,7 +21,10 @@ THE SOFTWARE.
 */
 package specify
 
-import "os"
+import (
+	"fmt";
+	"os";
+)
 
 type simpleExample struct {
 	name	string;
@@ -52,7 +55,7 @@ func (self *simpleExample) Run(reporter Reporter, before func(Example)) {
 
 	select {
 	case err := <-self.fail:
-		reporter.Fail(err)
+		reporter.Fail(os.NewError(fmt.Sprintf("%v - %v", self.name, err)))
 	case <-pass:
 		reporter.Pass()
 	}
