@@ -36,7 +36,7 @@ type Reporter interface {
 	Fail(os.Error);
 	Finish();
 	Pass();
-	Pending();
+	Pending(name string);
 }
 
 func DotReporter() Reporter	{ return makeDotReporter() }

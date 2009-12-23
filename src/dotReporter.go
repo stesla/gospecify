@@ -28,24 +28,34 @@ import (
 )
 
 type dotReporter struct {
-	passing, failing, pending	int;
-	failures			*list.List;
+	passing		int;
+	failures	*list.List;
+	pending		*list.List;
 }
 
-func makeDotReporter() Reporter	{ return &dotReporter{failures: list.New()} }
+func makeDotReporter() (result *dotReporter)	{ result = &dotReporter{};
+	result.failures = list.New();
+	result.pending = list.New();
+	return
+}
 
 func (self *dotReporter) Fail(err os.Error) {
-	self.failing++;
 	self.failures.PushBack(err);
 	fmt.Print("F");
 }
 
-func (self *dotReporter) Finish() {
-	fmt.Println("");
-	for i := range self.failures.Iter() {
+func printList(label string, l *list.List) {
+	if l.Len() == 0 { return }
+	fmt.Printf("\n%v:\n", label);
+	for i := range l.Iter() {
 		fmt.Println("-", i)
 	}
-	fmt.Printf("Passing: %v Failing: %v Pending: %v\n", self.passing, self.failing, self.pending);
+}
+
+func (self *dotReporter) Finish() {
+	fmt.Printf("\nPassing: %v Failing: %v Pending: %v\n", self.passing, self.failures.Len(), self.pending.Len());
+	printList("Failing Examples", self.failures);
+	printList("Pending Examples", self.pending);
 }
 
 func (self *dotReporter) Pass() {
@@ -53,7 +63,7 @@ func (self *dotReporter) Pass() {
 	fmt.Print(".");
 }
 
-func (self *dotReporter) Pending() {
-	self.pending++;
+func (self *dotReporter) Pending(name string) {
+	self.pending.PushBack(name);
 	fmt.Print("*");
 }

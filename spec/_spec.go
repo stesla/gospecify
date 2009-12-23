@@ -37,6 +37,7 @@ type TestingReporter interface {
 	PassingExamples() int;
 	PendingExamples() int;
 	HaveFailureIncluding(string) bool;
+	HavePendingIncluding(string) bool;
 }
 
 func testRun(block func(t.Runner)) (reporter TestingReporter) {
@@ -47,11 +48,17 @@ func testRun(block func(t.Runner)) (reporter TestingReporter) {
 	return;
 }
 
-func newTestingReporter() *testingReporter	{ return &testingReporter{failures: list.New()} }
+func newTestingReporter() (result *testingReporter) {
+	result = &testingReporter{};
+	result.failures = list.New();
+	result.pending = list.New();
+	return;
+}
 
 type testingReporter struct {
-	passing, pending	int;
-	failures		*list.List;
+	passing		int;
+	failures	*list.List;
+	pending		*list.List;
 }
 
 func (self *testingReporter) Fail(err os.Error) {
@@ -59,7 +66,9 @@ func (self *testingReporter) Fail(err os.Error) {
 }
 func (self *testingReporter) Finish()	{}
 func (self *testingReporter) Pass()	{ self.passing++ }
-func (self *testingReporter) Pending()	{ self.pending++ }
+func (self *testingReporter) Pending(name string) {
+	self.pending.PushBack(name)
+}
 
 func (self *testingReporter) FailingExamples() int {
 	return self.failures.Len()
@@ -68,12 +77,21 @@ func (self *testingReporter) PassingExamples() int {
 	return self.passing
 }
 func (self *testingReporter) PendingExamples() int {
-	return self.pending
+	return self.pending.Len()
 }
 func (self *testingReporter) HaveFailureIncluding(s string) bool {
 	for val := range self.failures.Iter() {
 		err, _ := val.(os.Error);
 		if strings.Count(err.String(), s) > 0 {
+			return true
+		}
+	}
+	return false;
+}
+func (self *testingReporter) HavePendingIncluding(s string) bool {
+	for val := range self.pending.Iter() {
+		name, _ := val.(string);
+		if strings.Count(name, s) > 0 {
 			return true
 		}
 	}
@@ -139,5 +157,25 @@ func (s haveFailureMatcher) Should(val interface{}) os.Error {
 	return nil;
 }
 func (haveFailureMatcher) ShouldNot(val interface{}) os.Error {
+	return os.NewError("matcher not implemented")
+}
+
+func HavePendingIncluding(s string) havePendingMatcher {
+	return (havePendingMatcher)(s)
+}
+
+type havePendingMatcher string
+
+func (s havePendingMatcher) Should(val interface{}) os.Error {
+	if reporter, error := toTestingReporter(val); error != nil {
+		return error
+	} else {
+		if !reporter.HavePendingIncluding((string)(s)) {
+			return os.NewError(fmt.Sprintf("expected error including `%v`", s))
+		}
+	}
+	return nil;
+}
+func (havePendingMatcher) ShouldNot(val interface{}) os.Error {
 	return os.NewError("matcher not implemented")
 }

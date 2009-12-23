@@ -39,7 +39,7 @@ func makeSimpleExample(name string, block func(Example)) *simpleExample {
 
 func (self *simpleExample) Run(reporter Reporter, before func(Example)) {
 	if self.block == nil {
-		reporter.Pending();
+		reporter.Pending(self.name);
 		return;
 	}
 
