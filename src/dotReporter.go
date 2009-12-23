@@ -33,10 +33,11 @@ type dotReporter struct {
 	pending		*list.List;
 }
 
-func makeDotReporter() (result *dotReporter)	{ result = &dotReporter{};
+func makeDotReporter() (result *dotReporter) {
+	result = &dotReporter{};
 	result.failures = list.New();
 	result.pending = list.New();
-	return
+	return;
 }
 
 func (self *dotReporter) Fail(err os.Error) {
@@ -45,7 +46,9 @@ func (self *dotReporter) Fail(err os.Error) {
 }
 
 func printList(label string, l *list.List) {
-	if l.Len() == 0 { return }
+	if l.Len() == 0 {
+		return
+	}
 	fmt.Printf("\n%v:\n", label);
 	for i := range l.Iter() {
 		fmt.Println("-", i)

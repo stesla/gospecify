@@ -22,21 +22,26 @@ THE SOFTWARE.
 package specify
 
 type complexExample struct {
-	name		string;
-	beforeBlock	func(Example);
-	block		func();
+	name			string;
+	afterBlock, beforeBlock	func(Example);
+	block			func();
 	*exampleCollection;
 }
 
 func makeComplexExample(name string, block func()) *complexExample {
-	return &complexExample{name, func(Example) {}, block, makeExampleCollection()}
+	return &complexExample{name, func(Example) {}, func(Example) {}, block, makeExampleCollection()}
 }
 
 func (self *complexExample) AddBefore(block func(Example)) {
 	self.beforeBlock = block
 }
+
+func (self *complexExample) AddAfter(block func(Example)) {
+	self.afterBlock = block
+}
+
 func (self *complexExample) Init()	{ self.block() }
-func (self *complexExample) Run(reporter Reporter, _ func(Example)) {
+func (self *complexExample) Run(reporter Reporter, _, _ func(Example)) {
 	/* TODO: Nested describes get weird with before blocks */
-	self.exampleCollection.Run(reporter, self.beforeBlock)
+	self.exampleCollection.Run(reporter, self.beforeBlock, self.afterBlock)
 }

@@ -24,7 +24,7 @@ package specify
 import "container/list"
 
 type example interface {
-	Run(Reporter, func(Example));
+	Run(r Reporter, before, after func(Example));
 }
 
 type exampleCollection struct {
@@ -46,10 +46,10 @@ func (self *exampleCollection) Init(runner *runner) {
 	}
 }
 
-func (self *exampleCollection) Run(reporter Reporter, before func(Example)) {
+func (self *exampleCollection) Run(reporter Reporter, before, after func(Example)) {
 	for i := range self.examples.Iter() {
 		if ex, ok := i.(example); ok {
-			ex.Run(reporter, before)
+			ex.Run(reporter, before, after)
 		}
 	}
 }

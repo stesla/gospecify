@@ -37,7 +37,7 @@ func makeSimpleExample(name string, block func(Example)) *simpleExample {
 	return &simpleExample{name, block, make(map[string]interface{}), make(chan os.Error)}
 }
 
-func (self *simpleExample) Run(reporter Reporter, before func(Example)) {
+func (self *simpleExample) Run(reporter Reporter, before, after func(Example)) {
 	if self.block == nil {
 		reporter.Pending(self.name);
 		return;
@@ -50,6 +50,10 @@ func (self *simpleExample) Run(reporter Reporter, before func(Example)) {
 		}
 
 		self.block(self);
+
+		if after != nil {
+			after(self)
+		}
 		pass <- true;
 	}();
 

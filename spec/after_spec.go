@@ -19,44 +19,30 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package specify
+package main
 
-import "os"
+import (
+	. "specify";
+	t "../src/testspecify";
+)
 
-type Runner interface {
-	After(func(Example));
-	Before(func(Example));
-	Describe(string, func());
-	It(string, func(Example));
-	Run(Reporter);
+func init() {
+	Describe("After", func() {
+		It("should run the block after each test", func(the Example) {
+			ch := make(chan bool, 1);
+			testRun(func(r t.Runner) {
+				r.After(func(t.Example) { ch <- true });
+				r.It("should pass", func(the t.Example) { /* pass */ });
+			});
+			the.Value(<-ch).Should(Be(true));
+		});
+
+		It("should fail a test if the after block fails", func(the Example) {
+			reporter := testRun(func(r t.Runner) {
+				r.After(func(the t.Example) { the.Value(1).Should(Be(2)) });
+				r.It("should pass", func(the t.Example) { /* pass */ });
+			});
+			the.Value(reporter).Should(HaveFailing(1));
+		});
+	})
 }
-
-func NewRunner() Runner	{ return makeRunner() }
-
-type Reporter interface {
-	Fail(os.Error);
-	Finish();
-	Pass();
-	Pending(name string);
-}
-
-func DotReporter() Reporter	{ return makeDotReporter() }
-
-type Example interface {
-	GetField(string) interface{};
-	Field(string) Assertion;
-	SetField(string, interface{});
-	Value(interface{}) Assertion;
-}
-
-type Assertion interface {
-	Should(Matcher);
-	ShouldNot(Matcher);
-}
-
-type Matcher interface {
-	Should(interface{}) os.Error;
-	ShouldNot(interface{}) os.Error;
-}
-
-func Be(value interface{}) Matcher	{ return makeBeMatcher(value) }
