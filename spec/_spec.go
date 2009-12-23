@@ -90,12 +90,16 @@ func toTestingReporter(value interface{}) (reporter TestingReporter, err os.Erro
 
 func (self reporterMatcher) Should(actual interface{}) (result os.Error) {
 	if reporter, error := toTestingReporter(actual); error != nil {
+		result = error
+	} else {
 		result = specify.Be(self.expected).Should(self.actualFunc(reporter))
 	}
 	return;
 }
 func (self reporterMatcher) ShouldNot(actual interface{}) (result os.Error) {
 	if reporter, error := toTestingReporter(actual); error != nil {
+		result = error
+	} else {
 		result = specify.Be(self.expected).ShouldNot(self.actualFunc(reporter))
 	}
 	return;
