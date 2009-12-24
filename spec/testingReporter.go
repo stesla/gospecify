@@ -23,7 +23,6 @@ package main
 
 import (
 	"container/list";
-	"os";
 
 	t "../src/testspecify";
 )
@@ -33,8 +32,8 @@ type TestingReporter interface {
 	FailingCount() int;
 	PassingCount() int;
 	PendingCount() int;
-	EachFailure() <-chan os.Error;
-	EachPending() <-chan string;
+	EachFailure() <-chan t.Report;
+	EachPending() <-chan t.Report;
 }
 
 func testRun(name string, block func(t.Runner)) (reporter TestingReporter) {
@@ -45,30 +44,24 @@ func testRun(name string, block func(t.Runner)) (reporter TestingReporter) {
 	return;
 }
 
-func newTestingReporter() (result *testingReporter) {
-	result = &testingReporter{};
-	result.failures = list.New();
-	result.pending = list.New();
-	return;
+func newTestingReporter() *testingReporter {
+	return &testingReporter{failing: list.New(), pending: list.New()}
 }
 
 type testingReporter struct {
-	passing		int;
-	failures	*list.List;
-	pending		*list.List;
+	passing			int;
+	failing, pending	*list.List;
 }
 
-func (self *testingReporter) Fail(err os.Error) {
-	self.failures.PushBack(err)
-}
-func (self *testingReporter) Finish()	{}
-func (self *testingReporter) Pass()	{ self.passing++ }
-func (self *testingReporter) Pending(name string) {
-	self.pending.PushBack(name)
+func (self *testingReporter) Fail(r t.Report)	{ self.failing.PushBack(r) }
+func (self *testingReporter) Finish()		{}
+func (self *testingReporter) Pass()		{ self.passing++ }
+func (self *testingReporter) Pending(r t.Report) {
+	self.pending.PushBack(r)
 }
 
 func (self *testingReporter) FailingCount() int {
-	return self.failures.Len()
+	return self.failing.Len()
 }
 func (self *testingReporter) PassingCount() int {
 	return self.passing
@@ -76,25 +69,20 @@ func (self *testingReporter) PassingCount() int {
 func (self *testingReporter) PendingCount() int {
 	return self.pending.Len()
 }
-func (self *testingReporter) EachFailure() <-chan os.Error {
-	ch := make(chan os.Error, self.failures.Len());
-	for val := range self.failures.Iter() {
-		if err, ok := val.(os.Error); !ok {
-			panic("typecast error");
-		} else {
-			ch <- err;
-		}
-	}
-	close(ch);
-	return ch;
+func (self *testingReporter) EachFailure() <-chan t.Report {
+	return eachReport(self.failing)
 }
-func (self *testingReporter) EachPending() <-chan string {
-	ch := make(chan string, self.pending.Len());
-	for val := range self.pending.Iter() {
-		if name, ok := val.(string); !ok {
-			panic("typecast error");
+func (self *testingReporter) EachPending() <-chan t.Report {
+	return eachReport(self.pending)
+}
+
+func eachReport(l *list.List) <-chan t.Report {
+	ch := make(chan t.Report, l.Len());
+	for val := range l.Iter() {
+		if name, ok := val.(t.Report); !ok {
+			panic("typecast error")
 		} else {
-			ch <- name;
+			ch <- name
 		}
 	}
 	close(ch);

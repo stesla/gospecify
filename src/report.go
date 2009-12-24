@@ -21,50 +21,11 @@ THE SOFTWARE.
 */
 package specify
 
-import (
-	"container/list";
-	"fmt";
-)
-
-type dotReporter struct {
-	passing			int;
-	failures, pending	*list.List;
+type report struct {
+	title string;
 }
 
-func makeDotReporter() (result *dotReporter) {
-	result = &dotReporter{};
-	result.failures = list.New();
-	result.pending = list.New();
-	return;
-}
+func newReport(title string) report	{ return report{title} }
 
-func (self *dotReporter) Fail(r Report) {
-	self.failures.PushBack(r);
-	fmt.Print("F");
-}
-
-func printList(label string, l *list.List) {
-	if l.Len() == 0 {
-		return
-	}
-	fmt.Printf("\n%v:\n", label);
-	for i := range l.Iter() {
-		fmt.Println("-", i)
-	}
-}
-
-func (self *dotReporter) Finish() {
-	fmt.Printf("\nPassing: %v Failing: %v Pending: %v\n", self.passing, self.failures.Len(), self.pending.Len());
-	printList("Failing Examples", self.failures);
-	printList("Pending Examples", self.pending);
-}
-
-func (self *dotReporter) Pass() {
-	self.passing++;
-	fmt.Print(".");
-}
-
-func (self *dotReporter) Pending(r Report) {
-	self.pending.PushBack(r);
-	fmt.Print("*");
-}
+func (self report) String() string	{ return self.title }
+func (self report) Title() string	{ return self.title }

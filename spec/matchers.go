@@ -77,8 +77,8 @@ func HaveFailureIncluding(s string) haveFailureIncluding {
 type haveFailureIncluding string
 
 func (s haveFailureIncluding) Match(r TestingReporter) bool {
-	for err := range r.EachFailure() {
-		if strings.Count(err.String(), (string)(s)) > 0 {
+	for report := range r.EachFailure() {
+		if strings.Count(report.Title(), (string)(s)) > 0 {
 			return true
 		}
 	}
@@ -105,8 +105,8 @@ func HavePendingIncluding(s string) havePendingIncluding {
 type havePendingIncluding string
 
 func (s havePendingIncluding) Match(r TestingReporter) bool {
-	for name := range r.EachPending() {
-		if strings.Count(name, (string)(s)) > 0 {
+	for report := range r.EachPending() {
+		if strings.Count(report.Title(), (string)(s)) > 0 {
 			return true
 		}
 	}

@@ -44,7 +44,7 @@ func (self *simpleExample) Title() string {
 
 func (self *simpleExample) Run(reporter Reporter, before, after func(Example)) {
 	if self.block == nil {
-		reporter.Pending(self.Title());
+		reporter.Pending(newReport(self.Title()));
 		return;
 	}
 
@@ -64,7 +64,7 @@ func (self *simpleExample) Run(reporter Reporter, before, after func(Example)) {
 
 	select {
 	case err := <-self.fail:
-		reporter.Fail(os.NewError(fmt.Sprintf("%v - %v", self.Title(), err)))
+		reporter.Fail(newReport(fmt.Sprintf("%v - %v", self.Title(), err)))
 	case <-pass:
 		reporter.Pass()
 	}

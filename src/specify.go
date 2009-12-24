@@ -33,11 +33,16 @@ type Runner interface {
 
 func NewRunner() Runner	{ return makeRunner() }
 
+type Report interface {
+	String() string;
+	Title() string;
+}
+
 type Reporter interface {
-	Fail(os.Error);
+	Fail(Report);
 	Finish();
 	Pass();
-	Pending(name string);
+	Pending(Report);
 }
 
 func DotReporter() Reporter	{ return makeDotReporter() }
