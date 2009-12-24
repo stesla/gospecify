@@ -29,15 +29,15 @@ import (
 )
 
 func HavePassing(expected interface{}) specify.Matcher {
-	return reporterMatcher{expected, func(r TestingReporter) interface{} { return r.PassingExamples() }}
+	return reporterMatcher{expected, func(r TestingReporter) interface{} { return r.PassingCount() }}
 }
 
 func HavePending(expected interface{}) specify.Matcher {
-	return reporterMatcher{expected, func(r TestingReporter) interface{} { return r.PendingExamples() }}
+	return reporterMatcher{expected, func(r TestingReporter) interface{} { return r.PendingCount() }}
 }
 
 func HaveFailing(expected interface{}) specify.Matcher {
-	return reporterMatcher{expected, func(r TestingReporter) interface{} { return r.FailingExamples() }}
+	return reporterMatcher{expected, func(r TestingReporter) interface{} { return r.FailingCount() }}
 }
 
 type reporterMatcher struct {

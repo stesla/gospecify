@@ -30,9 +30,9 @@ import (
 
 type TestingReporter interface {
 	t.Reporter;
-	FailingExamples() int;
-	PassingExamples() int;
-	PendingExamples() int;
+	FailingCount() int;
+	PassingCount() int;
+	PendingCount() int;
 	EachFailure() <-chan os.Error;
 	EachPending() <-chan string;
 }
@@ -67,13 +67,13 @@ func (self *testingReporter) Pending(name string) {
 	self.pending.PushBack(name)
 }
 
-func (self *testingReporter) FailingExamples() int {
+func (self *testingReporter) FailingCount() int {
 	return self.failures.Len()
 }
-func (self *testingReporter) PassingExamples() int {
+func (self *testingReporter) PassingCount() int {
 	return self.passing
 }
-func (self *testingReporter) PendingExamples() int {
+func (self *testingReporter) PendingCount() int {
 	return self.pending.Len()
 }
 func (self *testingReporter) EachFailure() <-chan os.Error {
