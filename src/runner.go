@@ -28,23 +28,23 @@ type runner struct {
 
 func makeRunner() *runner	{ return &runner{examples: makeExampleCollection()} }
 
-func (self *runner) After(block func(Example)) {
+func (self *runner) After(block AfterBlock) {
 	if self.currentExample != nil {
 		self.currentExample.AddAfter(block)
 	}
 }
 
-func (self *runner) Before(block func(Example)) {
+func (self *runner) Before(block BeforeBlock) {
 	if self.currentExample != nil {
 		self.currentExample.AddBefore(block)
 	}
 }
 
-func (self *runner) Describe(name string, block func()) {
+func (self *runner) Describe(name string, block ExampleGroupBlock) {
 	self.examples.Add(makeComplexExample(name, block))
 }
 
-func (self *runner) It(name string, block func(Example)) {
+func (self *runner) It(name string, block ExampleBlock) {
 	if self.currentExample != nil {
 		self.currentExample.Add(makeSimpleExample(self.currentExample, name, block))
 	}
@@ -52,6 +52,6 @@ func (self *runner) It(name string, block func(Example)) {
 
 func (self *runner) Run(reporter Reporter) {
 	self.examples.Init(self);
-	self.examples.Run(reporter, func(Example) {}, func(Example) {});
+	self.examples.Run(reporter, emptyBefore, emptyAfter);
 	reporter.Finish();
 }

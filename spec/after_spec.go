@@ -22,6 +22,8 @@ THE SOFTWARE.
 package main
 
 import (
+	"os";
+
 	. "specify";
 	t "../src/testspecify";
 )
@@ -31,19 +33,23 @@ func init() {
 		It("should run the block after each test", func(the Example) {
 			ch := make(chan bool, 1);
 			testRun("", func(r t.Runner) {
-				r.After(func(t.Example) { ch <- true });
+				r.After(func() os.Error {
+					ch <- true;
+					return nil;
+				});
 				r.It("should pass", func(the t.Example) { /* pass */ });
 			});
 			_, ok := <-ch;
 			the.Value(ok).Should(Be(true));
 		});
 
-		It("should fail a test if the after block fails", func(the Example) {
+		It("should fail a test if the after has an error", func(the Example) {
 			reporter := testRun("", func(r t.Runner) {
-				r.After(func(the t.Example) { the.Value(1).Should(Be(2)) });
+				r.After(func() os.Error { return os.NewError("boom") });
 				r.It("should pass", func(the t.Example) { /* pass */ });
 			});
-			the.Value(reporter).Should(HaveFailing(1));
+			the.Value(reporter).Should(HaveFailureIncluding("(After)"));
+			//the.Value(reporter).Should(HaveFailureAt("after_spec.go:45"));
 		});
 	})
 }

@@ -52,19 +52,19 @@ import "specify";
 
 var runner specify.Runner = specify.NewRunner();
 
-func After(block func(specify.Example)) {
+func After(block specify.AfterBlock) {
 	runner.After(block);
 }
 
-func Before(block func(specify.Example)) {
+func Before(block specify.BeforeBlock) {
 	runner.Before(block);
 }
 
-func Describe(name string, block func()) {
+func Describe(name string, block specify.ExampleGroupBlock) {
 	runner.Describe(name, block);
 }
 
-func It(name string, block func(specify.Example)) {
+func It(name string, block specify.ExampleBlock) {
 	runner.It(name, block);
 }
 

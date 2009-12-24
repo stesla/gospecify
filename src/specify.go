@@ -23,11 +23,22 @@ package specify
 
 import "os"
 
+type AfterBlock func() os.Error
+
+var emptyAfter = func() os.Error { return nil }
+
+type BeforeBlock func(Example)
+
+var emptyBefore = func(Example) {}
+
+type ExampleBlock func(Example)
+type ExampleGroupBlock func()
+
 type Runner interface {
-	After(func(Example));
-	Before(func(Example));
-	Describe(string, func());
-	It(string, func(Example));
+	After(AfterBlock);
+	Before(BeforeBlock);
+	Describe(string, ExampleGroupBlock);
+	It(string, ExampleBlock);
 	Run(Reporter);
 }
 

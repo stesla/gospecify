@@ -29,13 +29,13 @@ import (
 type simpleExample struct {
 	parent	*complexExample;
 	name	string;
-	block	func(Example);
+	block	ExampleBlock;
 	fields	map[string]interface{};
 	fail	chan Report;
 	loc	Location;
 }
 
-func makeSimpleExample(parent *complexExample, name string, block func(Example)) *simpleExample {
+func makeSimpleExample(parent *complexExample, name string, block ExampleBlock) *simpleExample {
 	return &simpleExample{parent, name, block, make(map[string]interface{}), make(chan Report), newExampleLocation()}
 }
 
@@ -43,7 +43,7 @@ func (self *simpleExample) Title() string {
 	return fmt.Sprintf("%v %v", self.parent.name, self.name)
 }
 
-func (self *simpleExample) Run(reporter Reporter, before, after func(Example)) {
+func (self *simpleExample) Run(reporter Reporter, before BeforeBlock, after AfterBlock) {
 	if self.block == nil {
 		reporter.Pending(newReport(self.Title(), os.NewError("not implemented"), self.loc));
 		return;
@@ -58,7 +58,9 @@ func (self *simpleExample) Run(reporter Reporter, before, after func(Example)) {
 		self.block(self);
 
 		if after != nil {
-			after(self)
+			if err := after(); err != nil {
+				self.fail <- newReport(self.Title()+" (After)", err, newLocation(0))
+			}
 		}
 		pass <- true;
 	}();
