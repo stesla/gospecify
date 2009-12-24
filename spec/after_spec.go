@@ -34,7 +34,7 @@ func init() {
 				r.After(func(t.Example) { ch <- true });
 				r.It("should pass", func(the t.Example) { /* pass */ });
 			});
-			_, ok := <-ch
+			_, ok := <-ch;
 			the.Value(ok).Should(Be(true));
 		});
 

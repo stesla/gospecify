@@ -27,7 +27,7 @@ import (
 )
 
 type simpleExample struct {
-	parent  *complexExample;
+	parent	*complexExample;
 	name	string;
 	block	func(Example);
 	fields	map[string]interface{};
@@ -39,7 +39,7 @@ func makeSimpleExample(parent *complexExample, name string, block func(Example))
 }
 
 func (self *simpleExample) Title() string {
-	return fmt.Sprintf("%v %v", self.parent.name, self.name);
+	return fmt.Sprintf("%v %v", self.parent.name, self.name)
 }
 
 func (self *simpleExample) Run(reporter Reporter, before, after func(Example)) {

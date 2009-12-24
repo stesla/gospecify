@@ -46,7 +46,7 @@ func (self *runner) Describe(name string, block func()) {
 
 func (self *runner) It(name string, block func(Example)) {
 	if self.currentExample != nil {
-		self.currentExample.Add(makeSimpleExample(self.currentExample, name, block));
+		self.currentExample.Add(makeSimpleExample(self.currentExample, name, block))
 	}
 }
 
