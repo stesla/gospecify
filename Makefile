@@ -32,7 +32,7 @@ format:
 
 test:
 	cd src; make testpackage
-	cd spec; $(SPECIFY) *_spec.go
+	cd spec; $(SPECIFY) *.go
 
 package:
 	cd src; make package
