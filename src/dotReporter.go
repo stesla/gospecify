@@ -48,8 +48,12 @@ func printList(label string, l *list.List) {
 		return
 	}
 	fmt.Printf("\n%v:\n", label);
-	for i := range l.Iter() {
-		fmt.Println("-", i)
+	for val := range l.Iter() {
+		if r, ok := val.(Report); !ok {
+			panic("not a Report")
+		} else {
+			fmt.Printf("\n- %v - %v\n  %v\n", r.Title(), r.Error(), r.Location())
+		}
 	}
 }
 

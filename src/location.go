@@ -21,52 +21,29 @@ THE SOFTWARE.
 */
 package specify
 
-import "os"
+import (
+	"fmt";
+	"runtime";
+)
 
-type Runner interface {
-	After(func(Example));
-	Before(func(Example));
-	Describe(string, func());
-	It(string, func(Example));
-	Run(Reporter);
+type location struct {
+	file	string;
+	line	int;
 }
 
-func NewRunner() Runner	{ return makeRunner() }
+var assertionDepth int = 5
+var exampleDepth int = 4
 
-type Location interface {
-	String() string;
+func AdjustAssertionDepth(delta int)	{ assertionDepth += delta }
+func AdjustExampleDepth(delta int)	{ exampleDepth += delta }
+func newAssertionLocation() location	{ return newLocation(assertionDepth) }
+func newExampleLocation() location	{ return newLocation(exampleDepth) }
+
+func newLocation(depth int) location {
+	if _, file, line, ok := runtime.Caller(depth); ok {
+		return location{file, line}
+	}
+	panic("newLocation");
 }
 
-type Report interface {
-	Title() string;
-	Error() os.Error;
-	Location() Location;
-}
-
-type Reporter interface {
-	Fail(Report);
-	Finish();
-	Pass();
-	Pending(Report);
-}
-
-func DotReporter() Reporter	{ return makeDotReporter() }
-
-type Example interface {
-	GetField(string) interface{};
-	Field(string) Assertion;
-	SetField(string, interface{});
-	Value(interface{}) Assertion;
-}
-
-type Assertion interface {
-	Should(Matcher);
-	ShouldNot(Matcher);
-}
-
-type Matcher interface {
-	Should(interface{}) os.Error;
-	ShouldNot(interface{}) os.Error;
-}
-
-func Be(value interface{}) Matcher	{ return makeBeMatcher(value) }
+func (self location) String() string	{ return fmt.Sprintf("%v:%d", self.file, self.line) }

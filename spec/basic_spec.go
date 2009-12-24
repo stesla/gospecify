@@ -49,7 +49,10 @@ func init() {
 		It("counts failing examples", func(the Example) { the.Field("reporter").Should(HaveFailing(1)) });
 		It("counts pending examples", func(the Example) { the.Field("reporter").Should(HavePending(1)) });
 
-		It("includes the example name in the failure message", func(the Example) { the.Field("reporter").Should(HaveFailureIncluding("basic fail")) });
+		It("reports the example name when failing", func(the Example) { the.Field("reporter").Should(HaveFailureIncluding("basic fail")) });
 		It("reports the example name when pending", func(the Example) { the.Field("reporter").Should(HavePendingIncluding("basic pending")) });
+
+		It("reports the file and line of a failing expectation", func(the Example) { the.Field("reporter").Should(HaveFailureAt("basic_spec.go:39")) });
+		It("reports the file and line of a pending example", func(the Example) { the.Field("reporter").Should(HavePendingAt("basic_spec.go:43")) });
 	})
 }

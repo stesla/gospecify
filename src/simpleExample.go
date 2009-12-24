@@ -31,11 +31,12 @@ type simpleExample struct {
 	name	string;
 	block	func(Example);
 	fields	map[string]interface{};
-	fail	chan os.Error;
+	fail	chan Report;
+	loc	Location;
 }
 
 func makeSimpleExample(parent *complexExample, name string, block func(Example)) *simpleExample {
-	return &simpleExample{parent, name, block, make(map[string]interface{}), make(chan os.Error)}
+	return &simpleExample{parent, name, block, make(map[string]interface{}), make(chan Report), newExampleLocation()}
 }
 
 func (self *simpleExample) Title() string {
@@ -44,7 +45,7 @@ func (self *simpleExample) Title() string {
 
 func (self *simpleExample) Run(reporter Reporter, before, after func(Example)) {
 	if self.block == nil {
-		reporter.Pending(newReport(self.Title()));
+		reporter.Pending(newReport(self.Title(), os.NewError("not implemented"), self.loc));
 		return;
 	}
 
@@ -63,8 +64,8 @@ func (self *simpleExample) Run(reporter Reporter, before, after func(Example)) {
 	}();
 
 	select {
-	case err := <-self.fail:
-		reporter.Fail(newReport(fmt.Sprintf("%v - %v", self.Title(), err)))
+	case report := <-self.fail:
+		reporter.Fail(report)
 	case <-pass:
 		reporter.Pass()
 	}

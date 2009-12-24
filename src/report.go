@@ -21,11 +21,18 @@ THE SOFTWARE.
 */
 package specify
 
+import "os"
+
 type report struct {
-	title string;
+	title	string;
+	err	os.Error;
+	loc	Location;
 }
 
-func newReport(title string) report	{ return report{title} }
+func newReport(title string, err os.Error, loc Location) report {
+	return report{title, err, loc}
+}
 
-func (self report) String() string	{ return self.title }
 func (self report) Title() string	{ return self.title }
+func (self report) Error() os.Error	{ return self.err }
+func (self report) Location() Location	{ return self.loc }

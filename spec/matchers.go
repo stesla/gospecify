@@ -125,3 +125,55 @@ func (s havePendingIncluding) Should(val interface{}) os.Error {
 func (havePendingIncluding) ShouldNot(val interface{}) os.Error {
 	return os.NewError("matcher not implemented")
 }
+
+func HaveFailureAt(loc string) haveFailureAt	{ return (haveFailureAt)(loc) }
+
+type haveFailureAt string
+
+func (loc haveFailureAt) Match(r TestingReporter) bool {
+	for report := range r.EachFailure() {
+		if strings.HasSuffix(report.Location().String(), (string)(loc)) {
+			return true
+		}
+	}
+	return false;
+}
+func (loc haveFailureAt) Should(val interface{}) os.Error {
+	if reporter, error := toTestingReporter(val); error != nil {
+		return error
+	} else {
+		if !loc.Match(reporter) {
+			return os.NewError(fmt.Sprintf("expected failure at `%v`", loc))
+		}
+	}
+	return nil;
+}
+func (haveFailureAt) ShouldNot(val interface{}) os.Error {
+	return os.NewError("matcher not implemented")
+}
+
+func HavePendingAt(loc string) havePendingAt	{ return (havePendingAt)(loc) }
+
+type havePendingAt string
+
+func (loc havePendingAt) Match(r TestingReporter) bool {
+	for report := range r.EachPending() {
+		if strings.HasSuffix(report.Location().String(), (string)(loc)) {
+			return true
+		}
+	}
+	return false;
+}
+func (loc havePendingAt) Should(val interface{}) os.Error {
+	if reporter, error := toTestingReporter(val); error != nil {
+		return error
+	} else {
+		if !loc.Match(reporter) {
+			return os.NewError(fmt.Sprintf("expected failure at `%v`", loc))
+		}
+	}
+	return nil;
+}
+func (havePendingAt) ShouldNot(val interface{}) os.Error {
+	return os.NewError("matcher not implemented")
+}

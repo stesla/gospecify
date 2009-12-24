@@ -32,7 +32,7 @@ type assertion struct {
 }
 
 func (self assertion) fail(err os.Error) {
-	self.example.fail <- err;
+	self.example.fail <- newReport(self.example.Title(), err, newAssertionLocation());
 	runtime.Goexit();
 }
 
