@@ -24,7 +24,6 @@ package main
 import (
 	"container/list";
 	"os";
-	"strings";
 
 	t "../src/testspecify";
 )
@@ -34,8 +33,8 @@ type TestingReporter interface {
 	FailingExamples() int;
 	PassingExamples() int;
 	PendingExamples() int;
-	HaveFailureIncluding(string) bool;
-	HavePendingIncluding(string) bool;
+	EachFailure() <-chan os.Error;
+	EachPending() <-chan string;
 }
 
 func testRun(name string, block func(t.Runner)) (reporter TestingReporter) {
@@ -77,21 +76,27 @@ func (self *testingReporter) PassingExamples() int {
 func (self *testingReporter) PendingExamples() int {
 	return self.pending.Len()
 }
-func (self *testingReporter) HaveFailureIncluding(s string) bool {
+func (self *testingReporter) EachFailure() <-chan os.Error {
+	ch := make(chan os.Error, self.failures.Len());
 	for val := range self.failures.Iter() {
-		err, _ := val.(os.Error);
-		if strings.Count(err.String(), s) > 0 {
-			return true
+		if err, ok := val.(os.Error); !ok {
+			panic("typecast error");
+		} else {
+			ch <- err;
 		}
 	}
-	return false;
+	close(ch);
+	return ch;
 }
-func (self *testingReporter) HavePendingIncluding(s string) bool {
+func (self *testingReporter) EachPending() <-chan string {
+	ch := make(chan string, self.pending.Len());
 	for val := range self.pending.Iter() {
-		name, _ := val.(string);
-		if strings.Count(name, s) > 0 {
-			return true
+		if name, ok := val.(string); !ok {
+			panic("typecast error");
+		} else {
+			ch <- name;
 		}
 	}
-	return false;
+	close(ch);
+	return ch;
 }

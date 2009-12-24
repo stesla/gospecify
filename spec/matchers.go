@@ -25,6 +25,7 @@ import (
 	"fmt";
 	"os";
 	"specify";
+	"strings";
 )
 
 func HavePassing(expected interface{}) specify.Matcher {
@@ -75,12 +76,20 @@ func HaveFailureIncluding(s string) haveFailureIncluding {
 
 type haveFailureIncluding string
 
+func (s haveFailureIncluding) Match(r TestingReporter) bool {
+	for err := range r.EachFailure() {
+		if strings.Count(err.String(), (string)(s)) > 0 {
+			return true
+		}
+	}
+	return false;
+}
 func (s haveFailureIncluding) Should(val interface{}) os.Error {
 	if reporter, error := toTestingReporter(val); error != nil {
 		return error
 	} else {
-		if !reporter.HaveFailureIncluding((string)(s)) {
-			return os.NewError(fmt.Sprintf("expected error including `%v`", s))
+		if !s.Match(reporter) {
+			return os.NewError(fmt.Sprintf("expected failing example including `%v`", s))
 		}
 	}
 	return nil;
@@ -95,12 +104,20 @@ func HavePendingIncluding(s string) havePendingIncluding {
 
 type havePendingIncluding string
 
+func (s havePendingIncluding) Match(r TestingReporter) bool {
+	for name := range r.EachPending() {
+		if strings.Count(name, (string)(s)) > 0 {
+			return true
+		}
+	}
+	return false;
+}
 func (s havePendingIncluding) Should(val interface{}) os.Error {
 	if reporter, error := toTestingReporter(val); error != nil {
 		return error
 	} else {
-		if !reporter.HavePendingIncluding((string)(s)) {
-			return os.NewError(fmt.Sprintf("expected error including `%v`", s))
+		if !s.Match(reporter) {
+			return os.NewError(fmt.Sprintf("expected pending example including `%v`", s))
 		}
 	}
 	return nil;
