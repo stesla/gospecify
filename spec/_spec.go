@@ -40,9 +40,9 @@ type TestingReporter interface {
 	HavePendingIncluding(string) bool;
 }
 
-func testRun(block func(t.Runner)) (reporter TestingReporter) {
+func testRun(name string, block func(t.Runner)) (reporter TestingReporter) {
 	runner := t.NewRunner();
-	runner.Describe("", func() { block(runner) });
+	runner.Describe(name, func() { block(runner) });
 	reporter = newTestingReporter();
 	runner.Run(reporter);
 	return;

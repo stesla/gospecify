@@ -29,7 +29,7 @@ import (
 func init() {
 	Describe("Running", func() {
 		Before(func(the Example) {
-			reporter := testRun(func(r t.Runner) {
+			reporter := testRun("basic", func(r t.Runner) {
 				r.It("pass", func(the t.Example) {
 					the.Value(7 * 6).Should(t.Be(42));
 					the.Value(1).ShouldNot(t.Be(2));
@@ -49,7 +49,7 @@ func init() {
 		It("counts failing examples", func(the Example) { the.Field("reporter").Should(HaveFailing(1)) });
 		It("counts pending examples", func(the Example) { the.Field("reporter").Should(HavePending(1)) });
 
-		It("includes the example name in the failure message", func(the Example) { the.Field("reporter").Should(HaveFailureIncluding("fail")) });
-		It("reports the example name when pending", func(the Example) { the.Field("reporter").Should(HavePendingIncluding("pending")) });
+		It("includes the example name in the failure message", func(the Example) { the.Field("reporter").Should(HaveFailureIncluding("basic fail")) });
+		It("reports the example name when pending", func(the Example) { the.Field("reporter").Should(HavePendingIncluding("basic pending")) });
 	})
 }

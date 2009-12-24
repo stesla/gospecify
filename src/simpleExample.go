@@ -27,19 +27,24 @@ import (
 )
 
 type simpleExample struct {
+	parent  *complexExample;
 	name	string;
 	block	func(Example);
 	fields	map[string]interface{};
 	fail	chan os.Error;
 }
 
-func makeSimpleExample(name string, block func(Example)) *simpleExample {
-	return &simpleExample{name, block, make(map[string]interface{}), make(chan os.Error)}
+func makeSimpleExample(parent *complexExample, name string, block func(Example)) *simpleExample {
+	return &simpleExample{parent, name, block, make(map[string]interface{}), make(chan os.Error)}
+}
+
+func (self *simpleExample) Title() string {
+	return fmt.Sprintf("%v %v", self.parent.name, self.name);
 }
 
 func (self *simpleExample) Run(reporter Reporter, before, after func(Example)) {
 	if self.block == nil {
-		reporter.Pending(self.name);
+		reporter.Pending(self.Title());
 		return;
 	}
 
@@ -59,7 +64,7 @@ func (self *simpleExample) Run(reporter Reporter, before, after func(Example)) {
 
 	select {
 	case err := <-self.fail:
-		reporter.Fail(os.NewError(fmt.Sprintf("%v - %v", self.name, err)))
+		reporter.Fail(os.NewError(fmt.Sprintf("%v - %v", self.Title(), err)))
 	case <-pass:
 		reporter.Pass()
 	}

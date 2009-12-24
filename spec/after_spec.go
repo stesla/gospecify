@@ -30,15 +30,16 @@ func init() {
 	Describe("After", func() {
 		It("should run the block after each test", func(the Example) {
 			ch := make(chan bool, 1);
-			testRun(func(r t.Runner) {
+			testRun("", func(r t.Runner) {
 				r.After(func(t.Example) { ch <- true });
 				r.It("should pass", func(the t.Example) { /* pass */ });
 			});
-			the.Value(<-ch).Should(Be(true));
+			_, ok := <-ch
+			the.Value(ok).Should(Be(true));
 		});
 
 		It("should fail a test if the after block fails", func(the Example) {
-			reporter := testRun(func(r t.Runner) {
+			reporter := testRun("", func(r t.Runner) {
 				r.After(func(the t.Example) { the.Value(1).Should(Be(2)) });
 				r.It("should pass", func(the t.Example) { /* pass */ });
 			});

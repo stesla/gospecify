@@ -29,7 +29,7 @@ import (
 func init() {
 	Describe("Before", func() {
 		It("should run the block before each test", func(the Example) {
-			reporter := testRun(func(r t.Runner) {
+			reporter := testRun("", func(r t.Runner) {
 				r.Before(func(the t.Example) { the.SetField("value", 42) });
 
 				r.It("should set the value this time", func(the t.Example) {
@@ -48,7 +48,7 @@ func init() {
 		});
 
 		It("should fail examples if assertions fail in the before block", func(the Example) {
-			reporter := testRun(func(r t.Runner) {
+			reporter := testRun("", func(r t.Runner) {
 				r.Before(func(the t.Example) { the.Value(1).Should(Be(2)) });
 				r.It("should fail in before", func(the t.Example) {});
 			});
