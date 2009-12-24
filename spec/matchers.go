@@ -69,13 +69,13 @@ func (self reporterMatcher) ShouldNot(actual interface{}) (result os.Error) {
 	return;
 }
 
-func HaveFailureIncluding(s string) haveFailureMatcher {
-	return (haveFailureMatcher)(s)
+func HaveFailureIncluding(s string) haveFailureIncluding {
+	return (haveFailureIncluding)(s)
 }
 
-type haveFailureMatcher string
+type haveFailureIncluding string
 
-func (s haveFailureMatcher) Should(val interface{}) os.Error {
+func (s haveFailureIncluding) Should(val interface{}) os.Error {
 	if reporter, error := toTestingReporter(val); error != nil {
 		return error
 	} else {
@@ -85,17 +85,17 @@ func (s haveFailureMatcher) Should(val interface{}) os.Error {
 	}
 	return nil;
 }
-func (haveFailureMatcher) ShouldNot(val interface{}) os.Error {
+func (haveFailureIncluding) ShouldNot(val interface{}) os.Error {
 	return os.NewError("matcher not implemented")
 }
 
-func HavePendingIncluding(s string) havePendingMatcher {
-	return (havePendingMatcher)(s)
+func HavePendingIncluding(s string) havePendingIncluding {
+	return (havePendingIncluding)(s)
 }
 
-type havePendingMatcher string
+type havePendingIncluding string
 
-func (s havePendingMatcher) Should(val interface{}) os.Error {
+func (s havePendingIncluding) Should(val interface{}) os.Error {
 	if reporter, error := toTestingReporter(val); error != nil {
 		return error
 	} else {
@@ -105,6 +105,6 @@ func (s havePendingMatcher) Should(val interface{}) os.Error {
 	}
 	return nil;
 }
-func (havePendingMatcher) ShouldNot(val interface{}) os.Error {
+func (havePendingIncluding) ShouldNot(val interface{}) os.Error {
 	return os.NewError("matcher not implemented")
 }
