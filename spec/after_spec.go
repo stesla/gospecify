@@ -33,8 +33,8 @@ func init() {
 		It("should run the block after each test", func(the Example) {
 			ch := make(chan bool, 1);
 			testRun("", func(r t.Runner) {
-				r.After(func(t.Context) { ch <- true });
 				r.It("should pass", func(the t.Example) { /* pass */ });
+				r.After(func(t.Context) { ch <- true });
 			});
 			_, ok := <-ch;
 			the.Value(ok).Should(Be(true));
@@ -42,8 +42,8 @@ func init() {
 
 		It("should fail a test if the after has an error", func(the Example) {
 			reporter := testRun("", func(r t.Runner) {
-				r.After(func(c t.Context) { c.Error(os.NewError("boom")) });
 				r.It("should pass", func(the t.Example) { /* pass */ });
+				r.After(func(c t.Context) { c.Error(os.NewError("boom")) });
 			});
 			the.Value(reporter).Should(HaveFailureAt("after_spec.go:45"));
 		});
