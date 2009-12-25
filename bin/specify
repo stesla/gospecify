@@ -69,7 +69,7 @@ func It(name string, block specify.ExampleBlock) {
 }
 
 func main() {
-	specify.AdjustExampleDepth(1);
+	specify.AdjustBlockDepth(1);
 	reporter := specify.DotReporter();
 	runner.Run(reporter);
 }

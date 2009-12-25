@@ -31,13 +31,13 @@ type location struct {
 	line	int;
 }
 
-var assertionDepth int = 5
-var exampleDepth int = 4
+const assertionDepth int = 5
 
-func AdjustAssertionDepth(delta int)	{ assertionDepth += delta }
-func AdjustExampleDepth(delta int)	{ exampleDepth += delta }
+var blockDepth int = 3
+
+func AdjustBlockDepth(delta int)	{ blockDepth += delta }
 func newAssertionLocation() location	{ return newLocation(assertionDepth) }
-func newExampleLocation() location	{ return newLocation(exampleDepth) }
+func newBlockLocation() location	{ return newLocation(blockDepth) }
 
 func newLocation(depth int) location {
 	if _, file, line, ok := runtime.Caller(depth); ok {

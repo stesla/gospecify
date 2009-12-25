@@ -35,8 +35,8 @@ type simpleExample struct {
 	loc	Location;
 }
 
-func makeSimpleExample(parent *complexExample, name string, block ExampleBlock) *simpleExample {
-	return &simpleExample{parent, name, block, make(map[string]interface{}), make(chan Report), newExampleLocation()}
+func makeSimpleExample(parent *complexExample, name string, block ExampleBlock, loc Location) *simpleExample {
+	return &simpleExample{parent, name, block, make(map[string]interface{}), make(chan Report), loc}
 }
 
 func (self *simpleExample) Title() string {

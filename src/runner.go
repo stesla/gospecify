@@ -46,7 +46,8 @@ func (self *runner) Describe(name string, block ExampleGroupBlock) {
 
 func (self *runner) It(name string, block ExampleBlock) {
 	if self.currentExample != nil {
-		self.currentExample.Add(makeSimpleExample(self.currentExample, name, block))
+		loc := newBlockLocation();
+		self.currentExample.Add(makeSimpleExample(self.currentExample, name, block, loc));
 	}
 }
 
