@@ -56,7 +56,22 @@ type Reporter interface {
 	Pending(Report);
 }
 
-func DotReporter() Reporter	{ return makeDotReporter() }
+type Summary interface {
+	ErrorCount() int;
+	FailingCount() int;
+	PassingCount() int;
+	PendingCount() int;
+	EachError() <-chan Report;
+	EachFailure() <-chan Report;
+	EachPending() <-chan Report;
+}
+
+type ReporterSummary interface {
+	Reporter;
+	Summary;
+}
+
+func DotReporter() ReporterSummary	{ return makeDotReporter() }
 
 type Context interface {
 	Error(os.Error);

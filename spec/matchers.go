@@ -31,19 +31,19 @@ import (
 )
 
 func HavePassing(expected interface{}) reporterMatcher {
-	return reporterMatcher{expected, func(r TestingReporter) interface{} { return r.PassingCount() }}
+	return reporterMatcher{expected, func(r t.ReporterSummary) interface{} { return r.PassingCount() }}
 }
 
 func HavePending(expected interface{}) reporterMatcher {
-	return reporterMatcher{expected, func(r TestingReporter) interface{} { return r.PendingCount() }}
+	return reporterMatcher{expected, func(r t.ReporterSummary) interface{} { return r.PendingCount() }}
 }
 
 func HaveFailing(expected interface{}) reporterMatcher {
-	return reporterMatcher{expected, func(r TestingReporter) interface{} { return r.FailingCount() }}
+	return reporterMatcher{expected, func(r t.ReporterSummary) interface{} { return r.FailingCount() }}
 }
 
 func HaveErrors(expected interface{}) reporterMatcher {
-	return reporterMatcher{expected, func(r TestingReporter) interface{} { return r.ErrorCount() }}
+	return reporterMatcher{expected, func(r t.ReporterSummary) interface{} { return r.ErrorCount() }}
 }
 
 func HaveFailureIncluding(s string) eachMatcher {
@@ -70,21 +70,21 @@ func HaveErrorAt(loc string) eachMatcher {
 	return eachMatcher{loc, "error", eachError, matchLocation}
 }
 
-func toTestingReporter(value interface{}) (reporter TestingReporter, err os.Error) {
+func toReporterSummary(value interface{}) (reporter t.ReporterSummary, err os.Error) {
 	var ok bool;
-	if reporter, ok = value.(TestingReporter); !ok {
-		err = os.NewError("Not a TestingReporter")
+	if reporter, ok = value.(t.ReporterSummary); !ok {
+		err = os.NewError("Not a t.ReporterSummary")
 	}
 	return;
 }
 
 type reporterMatcher struct {
 	expected	interface{};
-	actualFunc	func(TestingReporter) interface{};
+	actualFunc	func(t.ReporterSummary) interface{};
 }
 
 func (self reporterMatcher) Should(actual interface{}) (result os.Error) {
-	if reporter, error := toTestingReporter(actual); error != nil {
+	if reporter, error := toReporterSummary(actual); error != nil {
 		result = error
 	} else {
 		result = specify.Be(self.expected).Should(self.actualFunc(reporter))
@@ -92,7 +92,7 @@ func (self reporterMatcher) Should(actual interface{}) (result os.Error) {
 	return;
 }
 func (self reporterMatcher) ShouldNot(actual interface{}) (result os.Error) {
-	if reporter, error := toTestingReporter(actual); error != nil {
+	if reporter, error := toReporterSummary(actual); error != nil {
 		result = error
 	} else {
 		result = specify.Be(self.expected).ShouldNot(self.actualFunc(reporter))
@@ -102,11 +102,11 @@ func (self reporterMatcher) ShouldNot(actual interface{}) (result os.Error) {
 
 type eachMatcher struct {
 	s, message	string;
-	each		func(TestingReporter) <-chan t.Report;
+	each		func(t.ReporterSummary) <-chan t.Report;
 	f		func(t.Report, string) bool;
 }
 
-func (self eachMatcher) match(r TestingReporter) bool {
+func (self eachMatcher) match(r t.ReporterSummary) bool {
 	for report := range self.each(r) {
 		if self.f(report, self.s) {
 			return true
@@ -115,7 +115,7 @@ func (self eachMatcher) match(r TestingReporter) bool {
 	return false;
 }
 func (self eachMatcher) Should(val interface{}) os.Error {
-	if reporter, error := toTestingReporter(val); error != nil {
+	if reporter, error := toReporterSummary(val); error != nil {
 		return error
 	} else {
 		if !self.match(reporter) {
@@ -134,14 +134,14 @@ func matchLocation(r t.Report, s string) bool {
 	return strings.HasSuffix(r.Location().String(), s)
 }
 
-func eachFailure(r TestingReporter) <-chan t.Report {
+func eachFailure(r t.ReporterSummary) <-chan t.Report {
 	return r.EachFailure()
 }
 
-func eachPending(r TestingReporter) <-chan t.Report {
+func eachPending(r t.ReporterSummary) <-chan t.Report {
 	return r.EachPending()
 }
 
-func eachError(r TestingReporter) <-chan t.Report {
+func eachError(r t.ReporterSummary) <-chan t.Report {
 	return r.EachError()
 }

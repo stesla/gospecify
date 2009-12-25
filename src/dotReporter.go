@@ -22,56 +22,51 @@ THE SOFTWARE.
 package specify
 
 import (
-	"container/list";
 	"fmt";
 )
 
 type dotReporter struct {
-	passing				int;
-	failures, pending, errors	*list.List;
+	*basicReporter;
 }
 
-func makeDotReporter() (result *dotReporter) {
-	return &dotReporter{failures: list.New(), pending: list.New(), errors: list.New()}
-}
+func makeDotReporter() (result *dotReporter)	{ return &dotReporter{NewBasicReporter()} }
 
 func (self *dotReporter) Error(r Report) {
-	self.errors.PushBack(r);
+	self.basicReporter.Error(r);
 	fmt.Print("E");
 }
 
 func (self *dotReporter) Fail(r Report) {
-	self.failures.PushBack(r);
+	self.basicReporter.Fail(r);
 	fmt.Print("F");
 }
 
-func printList(label string, l *list.List) {
-	if l.Len() == 0 {
-		return
-	}
+func printList(label string, reports <-chan Report) {
 	fmt.Printf("\n%v:\n", label);
-	for val := range l.Iter() {
-		if r, ok := val.(Report); !ok {
-			panic("not a Report")
-		} else {
-			fmt.Printf("\n- %v - %v\n  %v\n", r.Title(), r.Error(), r.Location())
-		}
+	for r := range reports {
+		fmt.Printf("\n- %v - %v\n  %v\n", r.Title(), r.Error(), r.Location())
 	}
 }
 
 func (self *dotReporter) Finish() {
-	fmt.Printf("\nPassing: %v  Failing: %v  Pending: %v  Errors: %v\n", self.passing, self.failures.Len(), self.pending.Len(), self.errors.Len());
-	printList("Errors", self.errors);
-	printList("Failing Examples", self.failures);
-	printList("Pending Examples", self.pending);
+	fmt.Printf("\nPassing: %v  Failing: %v  Pending: %v  Errors: %v\n", self.PassingCount(), self.FailingCount(), self.PendingCount(), self.ErrorCount());
+	if self.ErrorCount() > 0 {
+		printList("Errors", self.EachError())
+	}
+	if self.FailingCount() > 0 {
+		printList("Failing Examples", self.EachFailure())
+	}
+	if self.PendingCount() > 0 {
+		printList("Pending Examples", self.EachPending())
+	}
 }
 
 func (self *dotReporter) Pass() {
-	self.passing++;
+	self.basicReporter.Pass();
 	fmt.Print(".");
 }
 
 func (self *dotReporter) Pending(r Report) {
-	self.pending.PushBack(r);
+	self.basicReporter.Pending(r);
 	fmt.Print("*");
 }
