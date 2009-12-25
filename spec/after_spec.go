@@ -45,7 +45,7 @@ func init() {
 				r.It("should pass", func(the t.Example) { /* pass */ });
 				r.After(func(c t.Context) { c.Error(os.NewError("boom")) });
 			});
-			the.Value(reporter).Should(HaveFailureAt("after_spec.go:45"));
+			the.Value(reporter).Should(HaveFailureAt("after_spec.go:46"));
 		});
 
 		It("should see the fields set in the example", func(the Example) {
