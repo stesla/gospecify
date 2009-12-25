@@ -30,31 +30,31 @@ import (
 
 func init() {
 	Describe("After", func() {
-		It("should run the block after each test", func(the Example) {
+		It("should run the block after each test", func(e Example) {
 			ch := make(chan bool, 1);
 			testRun("", func(r t.Runner) {
-				r.It("should pass", func(the t.Example) { /* pass */ });
+				r.It("should pass", func(t.Example) { /* pass */ });
 				r.After(func(t.Context) { ch <- true });
 			});
 			_, ok := <-ch;
-			the.Value(ok).Should(Be(true));
+			e.Value(ok).Should(Be(true));
 		});
 
-		It("should fail a test if the after has an error", func(the Example) {
+		It("should fail a test if the after has an error", func(e Example) {
 			reporter := testRun("", func(r t.Runner) {
-				r.It("should pass", func(the t.Example) { /* pass */ });
+				r.It("should pass", func(t.Example) { /* pass */ });
 				r.After(func(c t.Context) { c.Error(os.NewError("boom")) });
 			});
-			the.Value(reporter).Should(HaveFailureAt("after_spec.go:46"));
+			e.Value(reporter).Should(HaveFailureAt("after_spec.go:46"));
 		});
 
-		It("should see the fields set in the example", func(the Example) {
+		It("should see the fields set in the example", func(e Example) {
 			ch := make(chan interface{}, 1);
 			testRun("", func(r t.Runner) {
 				r.It("should pass", func(e t.Example) { e.SetField("foo", "bar") });
 				r.After(func(c t.Context) { ch <- c.GetField("foo") });
 			});
-			the.Value(<-ch).Should(Be("bar"));
+			e.Value(<-ch).Should(Be("bar"));
 		});
 	})
 }

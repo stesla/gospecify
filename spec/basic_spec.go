@@ -28,31 +28,34 @@ import (
 
 func init() {
 	Describe("Running", func() {
-		Before(func(the Example) {
+		Before(func(e Example) {
 			reporter := testRun("basic", func(r t.Runner) {
-				r.It("pass", func(the t.Example) {
-					the.Value(7 * 6).Should(t.Be(42));
-					the.Value(1).ShouldNot(t.Be(2));
+				r.It("pass", func(e t.Example) {
+					e.Value(7 * 6).Should(t.Be(42));
+					e.Value(1).ShouldNot(t.Be(2));
 				});
 
-				r.It("fail", func(the t.Example) {
-					the.Value(7 * 6).ShouldNot(t.Be(42));
-					the.Value(1).Should(t.Be(2));
+				r.It("fail", func(e t.Example) {
+					e.Value(7 * 6).ShouldNot(t.Be(42));
+					e.Value(1).Should(t.Be(2));
 				});
 
 				r.It("pending", nil);
 			});
-			the.SetField("reporter", reporter);
+			e.SetField("reporter", reporter);
 		});
 
-		It("counts passing examples", func(the Example) { the.Field("reporter").Should(HavePassing(1)) });
-		It("counts failing examples", func(the Example) { the.Field("reporter").Should(HaveFailing(1)) });
-		It("counts pending examples", func(the Example) { the.Field("reporter").Should(HavePending(1)) });
+		/* Passing Examples */
+		It("counts passing examples", func(e Example) { e.Field("reporter").Should(HavePassing(1)) });
 
-		It("reports the example name when failing", func(the Example) { the.Field("reporter").Should(HaveFailureIncluding("basic fail")) });
-		It("reports the example name when pending", func(the Example) { the.Field("reporter").Should(HavePendingIncluding("basic pending")) });
+		/* Failing Examples */
+		It("counts failing examples", func(e Example) { e.Field("reporter").Should(HaveFailing(1)) });
+		It("reports the example name when failing", func(e Example) { e.Field("reporter").Should(HaveFailureIncluding("basic fail")) });
+		It("reports the file and line of a failing expectation", func(e Example) { e.Field("reporter").Should(HaveFailureAt("basic_spec.go:39")) });
 
-		It("reports the file and line of a failing expectation", func(the Example) { the.Field("reporter").Should(HaveFailureAt("basic_spec.go:39")) });
-		It("reports the file and line of a pending example", func(the Example) { the.Field("reporter").Should(HavePendingAt("basic_spec.go:43")) });
+		/* Pending Examples */
+		It("counts pending examples", func(e Example) { e.Field("reporter").Should(HavePending(1)) });
+		It("reports the example name when pending", func(e Example) { e.Field("reporter").Should(HavePendingIncluding("basic pending")) });
+		It("reports the file and line of a pending example", func(e Example) { e.Field("reporter").Should(HavePendingAt("basic_spec.go:43")) });
 	})
 }
