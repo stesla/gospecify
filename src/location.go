@@ -31,12 +31,16 @@ type location struct {
 	line	int;
 }
 
-const assertionDepth int = 5
+const (
+	assertionDepth	int	= 5;
+	errorDepth	int	= 3;
+)
 
 var blockDepth int = 3
 
 func AdjustBlockDepth(delta int)	{ blockDepth += delta }
 func newAssertionLocation() location	{ return newLocation(assertionDepth) }
+func newErrorLocation() location	{ return newLocation(errorDepth) }
 func newBlockLocation() location	{ return newLocation(blockDepth) }
 
 func newLocation(depth int) location {

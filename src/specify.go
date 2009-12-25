@@ -23,7 +23,7 @@ package specify
 
 import "os"
 
-type AfterFunc func(Context) os.Error
+type AfterFunc func(Context)
 type BeforeBlock func(Example)
 type ExampleBlock func(Example)
 type ExampleGroupBlock func()
@@ -58,6 +58,7 @@ type Reporter interface {
 func DotReporter() Reporter	{ return makeDotReporter() }
 
 type Context interface {
+	Error(os.Error);
 	GetField(string) interface{};
 	SetField(string, interface{});
 }

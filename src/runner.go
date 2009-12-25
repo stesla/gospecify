@@ -21,8 +21,6 @@ THE SOFTWARE.
 */
 package specify
 
-import "os"
-
 type runner struct {
 	examples	*exampleCollection;
 	currentExample	*complexExample;
@@ -33,7 +31,7 @@ type afterBlock struct {
 	loc	Location;
 }
 
-var emptyAfter = afterBlock{func(Context) os.Error { return nil }, nil}
+var emptyAfter = afterBlock{func(Context) {}, nil}
 var emptyBefore = func(Example) {}
 
 func makeRunner() *runner	{ return &runner{examples: makeExampleCollection()} }

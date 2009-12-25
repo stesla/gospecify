@@ -54,13 +54,8 @@ func (self *simpleExample) Run(reporter Reporter, before BeforeBlock, after afte
 		if before != nil {
 			before(self)
 		}
-
 		self.block(self);
-
-		if err := after.f(self); err != nil {
-			self.fail <- newReport(self.Title()+" (After)", err, after.loc)
-		}
-
+		after.f(self);
 		pass <- true;
 	}();
 
@@ -70,6 +65,10 @@ func (self *simpleExample) Run(reporter Reporter, before BeforeBlock, after afte
 	case <-pass:
 		reporter.Pass()
 	}
+}
+
+func (self *simpleExample) Error(err os.Error) {
+	self.fail <- newReport(self.Title(), err, newErrorLocation())
 }
 
 func (self *simpleExample) GetField(field string) (result interface{}) {
