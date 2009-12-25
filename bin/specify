@@ -52,7 +52,7 @@ import "specify";
 
 var runner specify.Runner = specify.NewRunner();
 
-func After(block specify.AfterBlock) {
+func After(block specify.AfterFunc) {
 	runner.After(block);
 }
 

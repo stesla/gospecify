@@ -49,7 +49,7 @@ func init() {
 				r.It("should pass", func(the t.Example) { /* pass */ });
 			});
 			the.Value(reporter).Should(HaveFailureIncluding("(After)"));
-			//the.Value(reporter).Should(HaveFailureAt("after_spec.go:45"));
+			the.Value(reporter).Should(HaveFailureAt("after_spec.go:48"));
 		});
 	})
 }

@@ -43,7 +43,7 @@ func (self *simpleExample) Title() string {
 	return fmt.Sprintf("%v %v", self.parent.name, self.name)
 }
 
-func (self *simpleExample) Run(reporter Reporter, before BeforeBlock, after AfterBlock) {
+func (self *simpleExample) Run(reporter Reporter, before BeforeBlock, after afterBlock) {
 	if self.block == nil {
 		reporter.Pending(newReport(self.Title(), os.NewError("not implemented"), self.loc));
 		return;
@@ -57,11 +57,10 @@ func (self *simpleExample) Run(reporter Reporter, before BeforeBlock, after Afte
 
 		self.block(self);
 
-		if after != nil {
-			if err := after(); err != nil {
-				self.fail <- newReport(self.Title()+" (After)", err, newLocation(0))
-			}
+		if err := after.f(); err != nil {
+			self.fail <- newReport(self.Title()+" (After)", err, after.loc)
 		}
+
 		pass <- true;
 	}();
 

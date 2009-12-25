@@ -21,16 +21,27 @@ THE SOFTWARE.
 */
 package specify
 
+import "os"
+
 type runner struct {
 	examples	*exampleCollection;
 	currentExample	*complexExample;
 }
 
+type afterBlock struct {
+	f	AfterFunc;
+	loc	Location;
+}
+
+var emptyAfter = afterBlock{func() os.Error { return nil }, nil}
+var emptyBefore = func(Example) {}
+
 func makeRunner() *runner	{ return &runner{examples: makeExampleCollection()} }
 
-func (self *runner) After(block AfterBlock) {
+func (self *runner) After(f AfterFunc) {
 	if self.currentExample != nil {
-		self.currentExample.AddAfter(block)
+		block := afterBlock{f, newBlockLocation()};
+		self.currentExample.AddAfter(block);
 	}
 }
 

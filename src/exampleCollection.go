@@ -24,7 +24,7 @@ package specify
 import "container/list"
 
 type example interface {
-	Run(r Reporter, before BeforeBlock, after AfterBlock);
+	Run(r Reporter, before BeforeBlock, after afterBlock);
 }
 
 type exampleCollection struct {
@@ -46,7 +46,7 @@ func (self *exampleCollection) Init(runner *runner) {
 	}
 }
 
-func (self *exampleCollection) Run(reporter Reporter, before BeforeBlock, after AfterBlock) {
+func (self *exampleCollection) Run(reporter Reporter, before BeforeBlock, after afterBlock) {
 	for i := range self.examples.Iter() {
 		if ex, ok := i.(example); ok {
 			ex.Run(reporter, before, after)
