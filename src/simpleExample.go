@@ -57,7 +57,7 @@ func (self *simpleExample) Run(reporter Reporter, before BeforeBlock, after afte
 
 		self.block(self);
 
-		if err := after.f(); err != nil {
+		if err := after.f(self); err != nil {
 			self.fail <- newReport(self.Title()+" (After)", err, after.loc)
 		}
 

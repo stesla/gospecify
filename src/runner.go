@@ -33,7 +33,7 @@ type afterBlock struct {
 	loc	Location;
 }
 
-var emptyAfter = afterBlock{func() os.Error { return nil }, nil}
+var emptyAfter = afterBlock{func(Context) os.Error { return nil }, nil}
 var emptyBefore = func(Example) {}
 
 func makeRunner() *runner	{ return &runner{examples: makeExampleCollection()} }
