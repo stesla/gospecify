@@ -27,15 +27,17 @@ import (
 )
 
 type dotReporter struct {
-	passing			int;
-	failures, pending	*list.List;
+	passing				int;
+	failures, pending, errors	*list.List;
 }
 
 func makeDotReporter() (result *dotReporter) {
-	result = &dotReporter{};
-	result.failures = list.New();
-	result.pending = list.New();
-	return;
+	return &dotReporter{failures: list.New(), pending: list.New(), errors: list.New()}
+}
+
+func (self *dotReporter) Error(r Report) {
+	self.errors.PushBack(r);
+	fmt.Print("E");
 }
 
 func (self *dotReporter) Fail(r Report) {
@@ -58,7 +60,8 @@ func printList(label string, l *list.List) {
 }
 
 func (self *dotReporter) Finish() {
-	fmt.Printf("\nPassing: %v Failing: %v Pending: %v\n", self.passing, self.failures.Len(), self.pending.Len());
+	fmt.Printf("\nPassing: %v  Failing: %v  Pending: %v  Errors: %v\n", self.passing, self.failures.Len(), self.pending.Len(), self.errors.Len());
+	printList("Errors", self.errors);
 	printList("Failing Examples", self.failures);
 	printList("Pending Examples", self.pending);
 }

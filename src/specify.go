@@ -49,6 +49,7 @@ type Report interface {
 }
 
 type Reporter interface {
+	Error(Report);
 	Fail(Report);
 	Finish();
 	Pass();

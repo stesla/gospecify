@@ -28,16 +28,20 @@ import (
 	"strings";
 )
 
-func HavePassing(expected interface{}) specify.Matcher {
+func HavePassing(expected interface{}) reporterMatcher {
 	return reporterMatcher{expected, func(r TestingReporter) interface{} { return r.PassingCount() }}
 }
 
-func HavePending(expected interface{}) specify.Matcher {
+func HavePending(expected interface{}) reporterMatcher {
 	return reporterMatcher{expected, func(r TestingReporter) interface{} { return r.PendingCount() }}
 }
 
-func HaveFailing(expected interface{}) specify.Matcher {
+func HaveFailing(expected interface{}) reporterMatcher {
 	return reporterMatcher{expected, func(r TestingReporter) interface{} { return r.FailingCount() }}
+}
+
+func HaveErrors(expected interface{}) reporterMatcher {
+	return reporterMatcher{expected, func(r TestingReporter) interface{} { return r.ErrorCount() }}
 }
 
 type reporterMatcher struct {
@@ -126,6 +130,34 @@ func (havePendingIncluding) ShouldNot(val interface{}) os.Error {
 	return os.NewError("matcher not implemented")
 }
 
+func HaveErrorIncluding(s string) haveErrorIncluding {
+	return (haveErrorIncluding)(s)
+}
+
+type haveErrorIncluding string
+
+func (s haveErrorIncluding) Match(r TestingReporter) bool {
+	for report := range r.EachError() {
+		if strings.Count(report.Title(), (string)(s)) > 0 {
+			return true
+		}
+	}
+	return false;
+}
+func (s haveErrorIncluding) Should(val interface{}) os.Error {
+	if reporter, error := toTestingReporter(val); error != nil {
+		return error
+	} else {
+		if !s.Match(reporter) {
+			return os.NewError(fmt.Sprintf("expected error example including `%v`", s))
+		}
+	}
+	return nil;
+}
+func (haveErrorIncluding) ShouldNot(val interface{}) os.Error {
+	return os.NewError("matcher not implemented")
+}
+
 func HaveFailureAt(loc string) haveFailureAt	{ return (haveFailureAt)(loc) }
 
 type haveFailureAt string
@@ -175,5 +207,31 @@ func (loc havePendingAt) Should(val interface{}) os.Error {
 	return nil;
 }
 func (havePendingAt) ShouldNot(val interface{}) os.Error {
+	return os.NewError("matcher not implemented")
+}
+
+func HaveErrorAt(loc string) haveErrorAt	{ return (haveErrorAt)(loc) }
+
+type haveErrorAt string
+
+func (loc haveErrorAt) Match(r TestingReporter) bool {
+	for report := range r.EachError() {
+		if strings.HasSuffix(report.Location().String(), (string)(loc)) {
+			return true
+		}
+	}
+	return false;
+}
+func (loc haveErrorAt) Should(val interface{}) os.Error {
+	if reporter, error := toTestingReporter(val); error != nil {
+		return error
+	} else {
+		if !loc.Match(reporter) {
+			return os.NewError(fmt.Sprintf("expected failure at `%v`", loc))
+		}
+	}
+	return nil;
+}
+func (haveErrorAt) ShouldNot(val interface{}) os.Error {
 	return os.NewError("matcher not implemented")
 }

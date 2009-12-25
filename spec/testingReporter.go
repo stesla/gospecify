@@ -29,9 +29,11 @@ import (
 
 type TestingReporter interface {
 	t.Reporter;
+	ErrorCount() int;
 	FailingCount() int;
 	PassingCount() int;
 	PendingCount() int;
+	EachError() <-chan t.Report;
 	EachFailure() <-chan t.Report;
 	EachPending() <-chan t.Report;
 }
@@ -45,14 +47,17 @@ func testRun(name string, block func(t.Runner)) (reporter TestingReporter) {
 }
 
 func newTestingReporter() *testingReporter {
-	return &testingReporter{failing: list.New(), pending: list.New()}
+	return &testingReporter{failing: list.New(), pending: list.New(), errors: list.New()}
 }
 
 type testingReporter struct {
-	passing			int;
-	failing, pending	*list.List;
+	passing				int;
+	failing, pending, errors	*list.List;
 }
 
+func (self *testingReporter) Error(r t.Report) {
+	self.errors.PushBack(r)
+}
 func (self *testingReporter) Fail(r t.Report)	{ self.failing.PushBack(r) }
 func (self *testingReporter) Finish()		{}
 func (self *testingReporter) Pass()		{ self.passing++ }
@@ -60,6 +65,7 @@ func (self *testingReporter) Pending(r t.Report) {
 	self.pending.PushBack(r)
 }
 
+func (self *testingReporter) ErrorCount() int	{ return self.errors.Len() }
 func (self *testingReporter) FailingCount() int {
 	return self.failing.Len()
 }
@@ -68,6 +74,9 @@ func (self *testingReporter) PassingCount() int {
 }
 func (self *testingReporter) PendingCount() int {
 	return self.pending.Len()
+}
+func (self *testingReporter) EachError() <-chan t.Report {
+	return eachReport(self.errors)
 }
 func (self *testingReporter) EachFailure() <-chan t.Report {
 	return eachReport(self.failing)

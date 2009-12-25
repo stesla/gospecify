@@ -31,12 +31,13 @@ type simpleExample struct {
 	name	string;
 	block	ExampleBlock;
 	fields	map[string]interface{};
+	error	chan Report;
 	fail	chan Report;
 	loc	Location;
 }
 
 func makeSimpleExample(parent *complexExample, name string, block ExampleBlock, loc Location) *simpleExample {
-	return &simpleExample{parent, name, block, make(map[string]interface{}), make(chan Report), loc}
+	return &simpleExample{parent, name, block, make(map[string]interface{}), make(chan Report), make(chan Report), loc}
 }
 
 func (self *simpleExample) Title() string {
@@ -60,6 +61,8 @@ func (self *simpleExample) Run(reporter Reporter, before BeforeBlock, after afte
 	}();
 
 	select {
+	case report := <-self.error:
+		reporter.Error(report)
 	case report := <-self.fail:
 		reporter.Fail(report)
 	case <-pass:
@@ -68,7 +71,7 @@ func (self *simpleExample) Run(reporter Reporter, before BeforeBlock, after afte
 }
 
 func (self *simpleExample) Error(err os.Error) {
-	self.fail <- newReport(self.Title(), err, newErrorLocation())
+	self.error <- newReport(self.Title(), err, newErrorLocation())
 }
 
 func (self *simpleExample) GetField(field string) (result interface{}) {

@@ -41,6 +41,8 @@ func init() {
 				});
 
 				r.It("pending", nil);
+
+				r.It("error", func(e t.Example) { e.Error(makeError("catastrophe")) });
 			});
 			e.SetField("reporter", reporter);
 		});
@@ -57,5 +59,10 @@ func init() {
 		It("counts pending examples", func(e Example) { e.Field("reporter").Should(HavePending(1)) });
 		It("reports the example name when pending", func(e Example) { e.Field("reporter").Should(HavePendingIncluding("basic pending")) });
 		It("reports the file and line of a pending example", func(e Example) { e.Field("reporter").Should(HavePendingAt("basic_spec.go:43")) });
+
+		/* Errored Examples */
+		It("counts errored examples", func(e Example) { e.Field("reporter").Should(HaveErrors(1)) });
+		It("reports the example name when errored", func(e Example) { e.Field("reporter").Should(HaveErrorIncluding("basic error")) });
+		It("reports the file and line of an error", func(e Example) { e.Field("reporter").Should(HaveErrorAt("basic_spec.go:45")) });
 	})
 }
