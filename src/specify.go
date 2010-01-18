@@ -96,3 +96,7 @@ type Matcher interface {
 }
 
 func Be(value interface{}) Matcher	{ return makeBeMatcher(value) }
+func Be(value interface{}) Matcher { return makeBeMatcher(value) }
+func BeNil() Matcher               { return Be(nil) }
+func BeFalse() Matcher             { return Be(false) }
+func BeTrue() Matcher              { return Be(true) }
