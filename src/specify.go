@@ -29,73 +29,72 @@ type ExampleBlock func(Example)
 type ExampleGroupBlock func()
 
 type Runner interface {
-	After(AfterFunc);
-	Before(BeforeBlock);
-	Describe(string, ExampleGroupBlock);
-	It(string, ExampleBlock);
-	Run(Reporter);
+	After(AfterFunc)
+	Before(BeforeBlock)
+	Describe(string, ExampleGroupBlock)
+	It(string, ExampleBlock)
+	Run(Reporter)
 }
 
-func NewRunner() Runner	{ return makeRunner() }
+func NewRunner() Runner { return makeRunner() }
 
 type Location interface {
-	String() string;
+	String() string
 }
 
 type Report interface {
-	Title() string;
-	Error() os.Error;
-	Location() Location;
+	Title() string
+	Error() os.Error
+	Location() Location
 }
 
 type Reporter interface {
-	Error(Report);
-	Fail(Report);
-	Finish();
-	Pass();
-	Pending(Report);
+	Error(Report)
+	Fail(Report)
+	Finish()
+	Pass()
+	Pending(Report)
 }
 
 type Summary interface {
-	ErrorCount() int;
-	FailingCount() int;
-	PassingCount() int;
-	PendingCount() int;
-	EachError() <-chan Report;
-	EachFailure() <-chan Report;
-	EachPending() <-chan Report;
+	ErrorCount() int
+	FailingCount() int
+	PassingCount() int
+	PendingCount() int
+	EachError() <-chan Report
+	EachFailure() <-chan Report
+	EachPending() <-chan Report
 }
 
 type ReporterSummary interface {
-	Reporter;
-	Summary;
+	Reporter
+	Summary
 }
 
-func DotReporter() ReporterSummary	{ return makeDotReporter() }
+func DotReporter() ReporterSummary { return makeDotReporter() }
 
 type Context interface {
-	Error(os.Error);
-	GetField(string) interface{};
-	SetField(string, interface{});
+	Error(os.Error)
+	GetField(string) interface{}
+	SetField(string, interface{})
 }
 
 type Example interface {
-	Context;
-	Field(string) Assertion;
-	Value(interface{}) Assertion;
+	Context
+	Field(string) Assertion
+	Value(interface{}) Assertion
 }
 
 type Assertion interface {
-	Should(Matcher);
-	ShouldNot(Matcher);
+	Should(Matcher)
+	ShouldNot(Matcher)
 }
 
 type Matcher interface {
-	Should(interface{}) os.Error;
-	ShouldNot(interface{}) os.Error;
+	Should(interface{}) os.Error
+	ShouldNot(interface{}) os.Error
 }
 
-func Be(value interface{}) Matcher	{ return makeBeMatcher(value) }
 func Be(value interface{}) Matcher { return makeBeMatcher(value) }
 func BeNil() Matcher               { return Be(nil) }
 func BeFalse() Matcher             { return Be(false) }

@@ -24,19 +24,19 @@ package specify
 import "container/list"
 
 type basicReporter struct {
-	passing				int;
-	failing, pending, errors	*list.List;
+	passing                  int
+	failing, pending, errors *list.List
 }
 
 func NewBasicReporter() *basicReporter {
 	return &basicReporter{failing: list.New(), pending: list.New(), errors: list.New()}
 }
 
-func (self *basicReporter) ErrorCount() int	{ return self.errors.Len() }
-func (self *basicReporter) FailingCount() int	{ return self.failing.Len() }
-func (self *basicReporter) PassingCount() int	{ return self.passing }
-func (self *basicReporter) PendingCount() int	{ return self.pending.Len() }
-func (self *basicReporter) Error(r Report)	{ self.errors.PushBack(r) }
+func (self *basicReporter) ErrorCount() int   { return self.errors.Len() }
+func (self *basicReporter) FailingCount() int { return self.failing.Len() }
+func (self *basicReporter) PassingCount() int { return self.passing }
+func (self *basicReporter) PendingCount() int { return self.pending.Len() }
+func (self *basicReporter) Error(r Report)    { self.errors.PushBack(r) }
 
 func (self *basicReporter) EachError() <-chan Report {
 	return eachReport(self.errors)
@@ -48,16 +48,16 @@ func (self *basicReporter) EachPending() <-chan Report {
 	return eachReport(self.pending)
 }
 
-func (self *basicReporter) Fail(r Report)	{ self.failing.PushBack(r) }
+func (self *basicReporter) Fail(r Report) { self.failing.PushBack(r) }
 
-func (self *basicReporter) Finish()	{}
+func (self *basicReporter) Finish() {}
 
-func (self *basicReporter) Pass()	{ self.passing++ }
+func (self *basicReporter) Pass() { self.passing++ }
 
-func (self *basicReporter) Pending(r Report)	{ self.pending.PushBack(r) }
+func (self *basicReporter) Pending(r Report) { self.pending.PushBack(r) }
 
 func eachReport(l *list.List) <-chan Report {
-	ch := make(chan Report, l.Len());
+	ch := make(chan Report, l.Len())
 	for val := range l.Iter() {
 		if name, ok := val.(Report); !ok {
 			panic("typecast error")
@@ -65,6 +65,6 @@ func eachReport(l *list.List) <-chan Report {
 			ch <- name
 		}
 	}
-	close(ch);
-	return ch;
+	close(ch)
+	return ch
 }

@@ -24,24 +24,24 @@ package specify
 import "container/list"
 
 type example interface {
-	Run(r Reporter, before BeforeBlock, after afterBlock);
+	Run(r Reporter, before BeforeBlock, after afterBlock)
 }
 
 type exampleCollection struct {
-	examples *list.List;
+	examples *list.List
 }
 
 func makeExampleCollection() *exampleCollection {
 	return &exampleCollection{list.New()}
 }
 
-func (self *exampleCollection) Add(e example)	{ self.examples.PushBack(e) }
+func (self *exampleCollection) Add(e example) { self.examples.PushBack(e) }
 
 func (self *exampleCollection) Init(runner *runner) {
 	for i := range self.examples.Iter() {
 		if ex, ok := i.(*complexExample); ok {
-			runner.currentExample = ex;
-			ex.Init();
+			runner.currentExample = ex
+			ex.Init()
 		}
 	}
 }

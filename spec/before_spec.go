@@ -22,37 +22,37 @@ THE SOFTWARE.
 package main
 
 import (
-	. "specify";
-	t "../src/testspecify";
+	. "specify"
+	t "../src/testspecify"
 )
 
 func init() {
 	Describe("Before", func() {
 		It("should run the block before each test", func(e Example) {
 			reporter := testRun("", func(r t.Runner) {
-				r.Before(func(e t.Example) { e.SetField("value", 42) });
+				r.Before(func(e t.Example) { e.SetField("value", 42) })
 
 				r.It("should set the value this time", func(e t.Example) {
-					e.Field("value").Should(t.Be(42));
-					e.SetField("value", 24);
-				});
+					e.Field("value").Should(t.Be(42))
+					e.SetField("value", 24)
+				})
 
 				r.It("should set this time too", func(e t.Example) {
-					e.Field("value").Should(t.Be(42));
-					e.SetField("value", 24);
-				});
-			});
+					e.Field("value").Should(t.Be(42))
+					e.SetField("value", 24)
+				})
+			})
 
-			e.Value(reporter).Should(HavePassing(2));
-		});
+			e.Value(reporter).Should(HavePassing(2))
+		})
 
 		It("should fail examples if assertions fail in the before block", func(e Example) {
 			reporter := testRun("", func(r t.Runner) {
-				r.Before(func(e t.Example) { e.Value(1).Should(Be(2)) });
-				r.It("should fail in before", func(t.Example) {});
-			});
+				r.Before(func(e t.Example) { e.Value(1).Should(Be(2)) })
+				r.It("should fail in before", func(t.Example) {})
+			})
 
-			e.Value(reporter).Should(HaveFailing(1));
-		});
+			e.Value(reporter).Should(HaveFailing(1))
+		})
 	})
 }

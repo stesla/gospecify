@@ -22,11 +22,11 @@ THE SOFTWARE.
 package specify
 
 type complexExample struct {
-	name		string;
-	afterBlock	afterBlock;
-	beforeBlock	BeforeBlock;
-	block		ExampleGroupBlock;
-	*exampleCollection;
+	name        string
+	afterBlock  afterBlock
+	beforeBlock BeforeBlock
+	block       ExampleGroupBlock
+	*exampleCollection
 }
 
 func makeComplexExample(name string, block ExampleGroupBlock) *complexExample {
@@ -41,7 +41,7 @@ func (self *complexExample) AddAfter(block afterBlock) {
 	self.afterBlock = block
 }
 
-func (self *complexExample) Init()	{ self.block() }
+func (self *complexExample) Init() { self.block() }
 func (self *complexExample) Run(reporter Reporter, _ BeforeBlock, _ afterBlock) {
 	/* TODO: Nested describes get weird with before blocks */
 	self.exampleCollection.Run(reporter, self.beforeBlock, self.afterBlock)

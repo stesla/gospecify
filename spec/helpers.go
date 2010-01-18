@@ -22,16 +22,16 @@ THE SOFTWARE.
 package main
 
 import (
-	"os";
-	t "../src/testspecify";
+	"os"
+	t "../src/testspecify"
 )
 
-func makeError(s string) os.Error	{ return os.NewError(s) }
+func makeError(s string) os.Error { return os.NewError(s) }
 
 func testRun(name string, block func(t.Runner)) (reporter t.ReporterSummary) {
-	runner := t.NewRunner();
-	runner.Describe(name, func() { block(runner) });
-	reporter = t.NewBasicReporter();
-	runner.Run(reporter);
-	return;
+	runner := t.NewRunner()
+	runner.Describe(name, func() { block(runner) })
+	reporter = t.NewBasicReporter()
+	runner.Run(reporter)
+	return
 }

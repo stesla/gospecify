@@ -22,12 +22,12 @@ THE SOFTWARE.
 package main
 
 import (
-	"fmt";
-	"os";
-	"specify";
-	"strings";
+	"fmt"
+	"os"
+	"specify"
+	"strings"
 
-	t "../src/testspecify";
+	t "../src/testspecify"
 )
 
 func HavePassing(expected interface{}) reporterMatcher {
@@ -71,16 +71,16 @@ func HaveErrorAt(loc string) eachMatcher {
 }
 
 func toReporterSummary(value interface{}) (reporter t.ReporterSummary, err os.Error) {
-	var ok bool;
+	var ok bool
 	if reporter, ok = value.(t.ReporterSummary); !ok {
 		err = os.NewError("Not a t.ReporterSummary")
 	}
-	return;
+	return
 }
 
 type reporterMatcher struct {
-	expected	interface{};
-	actualFunc	func(t.ReporterSummary) interface{};
+	expected   interface{}
+	actualFunc func(t.ReporterSummary) interface{}
 }
 
 func (self reporterMatcher) Should(actual interface{}) (result os.Error) {
@@ -89,7 +89,7 @@ func (self reporterMatcher) Should(actual interface{}) (result os.Error) {
 	} else {
 		result = specify.Be(self.expected).Should(self.actualFunc(reporter))
 	}
-	return;
+	return
 }
 func (self reporterMatcher) ShouldNot(actual interface{}) (result os.Error) {
 	if reporter, error := toReporterSummary(actual); error != nil {
@@ -97,13 +97,13 @@ func (self reporterMatcher) ShouldNot(actual interface{}) (result os.Error) {
 	} else {
 		result = specify.Be(self.expected).ShouldNot(self.actualFunc(reporter))
 	}
-	return;
+	return
 }
 
 type eachMatcher struct {
-	s, message	string;
-	each		func(t.ReporterSummary) <-chan t.Report;
-	f		func(t.Report, string) bool;
+	s, message string
+	each       func(t.ReporterSummary) <-chan t.Report
+	f          func(t.Report, string) bool
 }
 
 func (self eachMatcher) match(r t.ReporterSummary) bool {
@@ -112,7 +112,7 @@ func (self eachMatcher) match(r t.ReporterSummary) bool {
 			return true
 		}
 	}
-	return false;
+	return false
 }
 func (self eachMatcher) Should(val interface{}) os.Error {
 	if reporter, error := toReporterSummary(val); error != nil {
@@ -122,13 +122,13 @@ func (self eachMatcher) Should(val interface{}) os.Error {
 			return os.NewError(fmt.Sprintf("expected %v including `%v`", self.message, self.s))
 		}
 	}
-	return nil;
+	return nil
 }
 func (eachMatcher) ShouldNot(val interface{}) os.Error {
 	return os.NewError("matcher not implemented")
 }
 
-func matchTitle(r t.Report, s string) bool	{ return strings.Count(r.Title(), s) > 0 }
+func matchTitle(r t.Report, s string) bool { return strings.Count(r.Title(), s) > 0 }
 
 func matchLocation(r t.Report, s string) bool {
 	return strings.HasSuffix(r.Location().String(), s)

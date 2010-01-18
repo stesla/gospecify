@@ -22,18 +22,18 @@ THE SOFTWARE.
 package specify
 
 import (
-	"os";
-	"runtime";
+	"os"
+	"runtime"
 )
 
 type assertion struct {
-	example	*simpleExample;
-	value	interface{};
+	example *simpleExample
+	value   interface{}
 }
 
 func (self assertion) fail(err os.Error) {
-	self.example.fail <- newReport(self.example.Title(), err, newAssertionLocation());
-	runtime.Goexit();
+	self.example.fail <- newReport(self.example.Title(), err, newAssertionLocation())
+	runtime.Goexit()
 }
 
 func (self assertion) Should(matcher Matcher) {

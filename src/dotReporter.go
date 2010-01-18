@@ -22,34 +22,34 @@ THE SOFTWARE.
 package specify
 
 import (
-	"fmt";
+	"fmt"
 )
 
 type dotReporter struct {
-	*basicReporter;
+	*basicReporter
 }
 
-func makeDotReporter() (result *dotReporter)	{ return &dotReporter{NewBasicReporter()} }
+func makeDotReporter() (result *dotReporter) { return &dotReporter{NewBasicReporter()} }
 
 func (self *dotReporter) Error(r Report) {
-	self.basicReporter.Error(r);
-	fmt.Print("E");
+	self.basicReporter.Error(r)
+	fmt.Print("E")
 }
 
 func (self *dotReporter) Fail(r Report) {
-	self.basicReporter.Fail(r);
-	fmt.Print("F");
+	self.basicReporter.Fail(r)
+	fmt.Print("F")
 }
 
 func printList(label string, reports <-chan Report) {
-	fmt.Printf("\n%v:\n", label);
+	fmt.Printf("\n%v:\n", label)
 	for r := range reports {
 		fmt.Printf("\n- %v - %v\n  %v\n", r.Title(), r.Error(), r.Location())
 	}
 }
 
 func (self *dotReporter) Finish() {
-	fmt.Printf("\nPassing: %v  Failing: %v  Pending: %v  Errors: %v\n", self.PassingCount(), self.FailingCount(), self.PendingCount(), self.ErrorCount());
+	fmt.Printf("\nPassing: %v  Failing: %v  Pending: %v  Errors: %v\n", self.PassingCount(), self.FailingCount(), self.PendingCount(), self.ErrorCount())
 	if self.ErrorCount() > 0 {
 		printList("Errors", self.EachError())
 	}
@@ -62,11 +62,11 @@ func (self *dotReporter) Finish() {
 }
 
 func (self *dotReporter) Pass() {
-	self.basicReporter.Pass();
-	fmt.Print(".");
+	self.basicReporter.Pass()
+	fmt.Print(".")
 }
 
 func (self *dotReporter) Pending(r Report) {
-	self.basicReporter.Pending(r);
-	fmt.Print("*");
+	self.basicReporter.Pending(r)
+	fmt.Print("*")
 }

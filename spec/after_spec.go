@@ -22,37 +22,37 @@ THE SOFTWARE.
 package main
 
 import (
-	. "specify";
-	t "../src/testspecify";
+	. "specify"
+	t "../src/testspecify"
 )
 
 func init() {
 	Describe("After", func() {
 		It("should run the block after each test", func(e Example) {
-			ch := make(chan bool, 1);
+			ch := make(chan bool, 1)
 			testRun("", func(r t.Runner) {
-				r.It("should pass", func(t.Example) { /* pass */ });
-				r.After(func(t.Context) { ch <- true });
-			});
-			_, ok := <-ch;
-			e.Value(ok).Should(Be(true));
-		});
+				r.It("should pass", func(t.Example) { /* pass */ })
+				r.After(func(t.Context) { ch <- true })
+			})
+			_, ok := <-ch
+			e.Value(ok).Should(Be(true))
+		})
 
 		It("should fail a test if the after has an error", func(e Example) {
 			reporter := testRun("", func(r t.Runner) {
-				r.It("should pass", func(t.Example) { /* pass */ });
-				r.After(func(c t.Context) { c.Error(makeError("boom")) });
-			});
-			e.Value(reporter).Should(HaveErrorAt("after_spec.go:44"));
-		});
+				r.It("should pass", func(t.Example) { /* pass */ })
+				r.After(func(c t.Context) { c.Error(makeError("boom")) })
+			})
+			e.Value(reporter).Should(HaveErrorAt("after_spec.go:44"))
+		})
 
 		It("should see the fields set in the example", func(e Example) {
-			ch := make(chan interface{}, 1);
+			ch := make(chan interface{}, 1)
 			testRun("", func(r t.Runner) {
-				r.It("should pass", func(e t.Example) { e.SetField("foo", "bar") });
-				r.After(func(c t.Context) { ch <- c.GetField("foo") });
-			});
-			e.Value(<-ch).Should(Be("bar"));
-		});
+				r.It("should pass", func(e t.Example) { e.SetField("foo", "bar") })
+				r.After(func(c t.Context) { ch <- c.GetField("foo") })
+			})
+			e.Value(<-ch).Should(Be("bar"))
+		})
 	})
 }

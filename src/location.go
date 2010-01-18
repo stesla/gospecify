@@ -22,32 +22,32 @@ THE SOFTWARE.
 package specify
 
 import (
-	"fmt";
-	"runtime";
+	"fmt"
+	"runtime"
 )
 
 type location struct {
-	file	string;
-	line	int;
+	file string
+	line int
 }
 
 const (
-	assertionDepth	int	= 5;
-	errorDepth	int	= 3;
+	assertionDepth int = 5
+	errorDepth     int = 3
 )
 
 var blockDepth int = 3
 
-func AdjustBlockDepth(delta int)	{ blockDepth += delta }
-func newAssertionLocation() location	{ return newLocation(assertionDepth) }
-func newErrorLocation() location	{ return newLocation(errorDepth) }
-func newBlockLocation() location	{ return newLocation(blockDepth) }
+func AdjustBlockDepth(delta int)     { blockDepth += delta }
+func newAssertionLocation() location { return newLocation(assertionDepth) }
+func newErrorLocation() location     { return newLocation(errorDepth) }
+func newBlockLocation() location     { return newLocation(blockDepth) }
 
 func newLocation(depth int) location {
 	if _, file, line, ok := runtime.Caller(depth); ok {
 		return location{file, line}
 	}
-	panic("newLocation");
+	panic("newLocation")
 }
 
-func (self location) String() string	{ return fmt.Sprintf("%v:%d", self.file, self.line) }
+func (self location) String() string { return fmt.Sprintf("%v:%d", self.file, self.line) }

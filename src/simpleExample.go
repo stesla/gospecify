@@ -22,18 +22,18 @@ THE SOFTWARE.
 package specify
 
 import (
-	"fmt";
-	"os";
+	"fmt"
+	"os"
 )
 
 type simpleExample struct {
-	parent	*complexExample;
-	name	string;
-	block	ExampleBlock;
-	fields	map[string]interface{};
-	error	chan Report;
-	fail	chan Report;
-	loc	Location;
+	parent *complexExample
+	name   string
+	block  ExampleBlock
+	fields map[string]interface{}
+	error  chan Report
+	fail   chan Report
+	loc    Location
 }
 
 func makeSimpleExample(parent *complexExample, name string, block ExampleBlock, loc Location) *simpleExample {
@@ -46,19 +46,19 @@ func (self *simpleExample) Title() string {
 
 func (self *simpleExample) Run(reporter Reporter, before BeforeBlock, after afterBlock) {
 	if self.block == nil {
-		reporter.Pending(newReport(self.Title(), os.NewError("not implemented"), self.loc));
-		return;
+		reporter.Pending(newReport(self.Title(), os.NewError("not implemented"), self.loc))
+		return
 	}
 
-	pass := make(chan bool);
+	pass := make(chan bool)
 	go func() {
 		if before != nil {
 			before(self)
 		}
-		self.block(self);
-		after.f(self);
-		pass <- true;
-	}();
+		self.block(self)
+		after.f(self)
+		pass <- true
+	}()
 
 	select {
 	case report := <-self.error:
@@ -75,8 +75,8 @@ func (self *simpleExample) Error(err os.Error) {
 }
 
 func (self *simpleExample) GetField(field string) (result interface{}) {
-	result, _ = self.fields[field];
-	return;
+	result, _ = self.fields[field]
+	return
 }
 
 func (self *simpleExample) Field(field string) Assertion {

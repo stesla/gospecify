@@ -22,24 +22,24 @@ THE SOFTWARE.
 package specify
 
 type runner struct {
-	examples	*exampleCollection;
-	currentExample	*complexExample;
+	examples       *exampleCollection
+	currentExample *complexExample
 }
 
 type afterBlock struct {
-	f	AfterFunc;
-	loc	Location;
+	f   AfterFunc
+	loc Location
 }
 
 var emptyAfter = afterBlock{func(Context) {}, nil}
 var emptyBefore = func(Example) {}
 
-func makeRunner() *runner	{ return &runner{examples: makeExampleCollection()} }
+func makeRunner() *runner { return &runner{examples: makeExampleCollection()} }
 
 func (self *runner) After(f AfterFunc) {
 	if self.currentExample != nil {
-		block := afterBlock{f, newBlockLocation()};
-		self.currentExample.AddAfter(block);
+		block := afterBlock{f, newBlockLocation()}
+		self.currentExample.AddAfter(block)
 	}
 }
 
@@ -55,13 +55,13 @@ func (self *runner) Describe(name string, block ExampleGroupBlock) {
 
 func (self *runner) It(name string, block ExampleBlock) {
 	if self.currentExample != nil {
-		loc := newBlockLocation();
-		self.currentExample.Add(makeSimpleExample(self.currentExample, name, block, loc));
+		loc := newBlockLocation()
+		self.currentExample.Add(makeSimpleExample(self.currentExample, name, block, loc))
 	}
 }
 
 func (self *runner) Run(reporter Reporter) {
-	self.examples.Init(self);
-	self.examples.Run(reporter, emptyBefore, emptyAfter);
-	reporter.Finish();
+	self.examples.Init(self)
+	self.examples.Run(reporter, emptyBefore, emptyAfter)
+	reporter.Finish()
 }
