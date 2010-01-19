@@ -34,7 +34,9 @@ type equalityMatcher struct {
 	expected interface{}
 }
 
-func newEqualityMatcher(value interface{}) equalityMatcher { return equalityMatcher{value} }
+func newEqualityMatcher(value interface{}) equalityMatcher {
+	return equalityMatcher{value}
+}
 
 func (self equalityMatcher) test(val interface{}) bool {
 	switch t := self.expected.(type) {
