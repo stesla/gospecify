@@ -37,13 +37,11 @@ type equalityMatcher struct {
 func newEqualityMatcher(value interface{}) equalityMatcher { return equalityMatcher{value} }
 
 func (self equalityMatcher) test(val interface{}) bool {
-	switch t := val.(type) {
+	switch t := self.expected.(type) {
 	case equalto:
-		return t.EqualTo(self.expected)
-	default:
-		return val == self.expected
+		return t.EqualTo(val)
 	}
-	panic("not reached")
+	return val == self.expected
 }
 
 func (self equalityMatcher) Should(actual interface{}) os.Error {

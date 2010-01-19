@@ -75,7 +75,7 @@ func init() {
 		});
 
 		It("should match things with EqualTo()", func(e Example) {
-			e.Value(bslice([]byte{1,2})).Should(t.BeEqualTo([]byte{1,2}))
+			e.Value([]byte{1,2}).Should(t.BeEqualTo(bslice([]byte{1,2})))
 		});
 	})
 }
