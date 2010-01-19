@@ -22,6 +22,7 @@ THE SOFTWARE.
 package main
 
 import (
+	"bytes"
 	. "specify"
 	t "../src/testspecify"
 )
@@ -60,5 +61,29 @@ func init() {
 		It("should match true", func(e Example) { e.Value(true).Should(t.BeTrue()) })
 		It("should not match false", func(e Example) { e.Value(false).ShouldNot(t.BeTrue()) })
 		It("should not match other values", func(e Example) { e.Value(42).ShouldNot(t.BeTrue()) })
+	});
+
+	Describe("BeEqualTo", func() {
+		It("should match numbers", func(e Example) {
+			e.Value(1).Should(t.BeEqualTo(1));
+			e.Value(1.2).ShouldNot(t.BeEqualTo(2.1));
+		});
+
+		It("should match strings", func(e Example) {
+			e.Value("foo").Should(t.BeEqualTo("foo"));
+			e.Value("Doctor").ShouldNot(t.BeEqualTo("Donna"));
+		});
+
+		It("should match things with EqualTo()", func(e Example) {
+			e.Value(bslice([]byte{1,2})).Should(t.BeEqualTo([]byte{1,2}))
+		});
 	})
+}
+
+type bslice []byte
+func (self bslice) EqualTo(value interface{}) bool {
+	if other, ok := value.([]byte); ok {
+		return bytes.Equal(([]byte)(self), other);
+	}
+	return false
 }
