@@ -25,11 +25,13 @@ import (
 	"fmt"
 )
 
-type dotFormat int
+type specdocFormat int
 
-func makeDotReporter() ReporterSummary { return makeOutputReporter(dotFormat(0)) }
+func makeSpecdocReporter() ReporterSummary { return makeOutputReporter(specdocFormat(0)) }
 
-func (dotFormat) Error(r Report)   { fmt.Print("E") }
-func (dotFormat) Fail(r Report)    { fmt.Print("F") }
-func (dotFormat) Pass(r Report)    { fmt.Print(".") }
-func (dotFormat) Pending(r Report) { fmt.Print("*") }
+func (specdocFormat) Error(r Report) { fmt.Printf("- %s (ERROR)\n", r.Title()) }
+func (specdocFormat) Fail(r Report)  { fmt.Printf("- %s (FAILED)\n", r.Title()) }
+func (specdocFormat) Pass(r Report)  { fmt.Printf("- %s\n", r.Title()) }
+func (specdocFormat) Pending(r Report) {
+	fmt.Printf("- %s (Not yet implemented)\n", r.Title())
+}

@@ -52,7 +52,7 @@ func (self *basicReporter) Fail(r Report) { self.failing.PushBack(r) }
 
 func (self *basicReporter) Finish() {}
 
-func (self *basicReporter) Pass() { self.passing++ }
+func (self *basicReporter) Pass(r Report) { self.passing++ }
 
 func (self *basicReporter) Pending(r Report) { self.pending.PushBack(r) }
 

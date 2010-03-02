@@ -52,7 +52,7 @@ type Reporter interface {
 	Error(Report)
 	Fail(Report)
 	Finish()
-	Pass()
+	Pass(Report)
 	Pending(Report)
 }
 
@@ -71,7 +71,8 @@ type ReporterSummary interface {
 	Summary
 }
 
-func DotReporter() ReporterSummary { return makeDotReporter() }
+func DotReporter() ReporterSummary     { return makeDotReporter() }
+func SpecdocReporter() ReporterSummary { return makeSpecdocReporter() }
 
 type Context interface {
 	Error(os.Error)

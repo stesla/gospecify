@@ -66,7 +66,7 @@ func (self *simpleExample) Run(reporter Reporter, before BeforeBlock, after afte
 	case report := <-self.fail:
 		reporter.Fail(report)
 	case <-pass:
-		reporter.Pass()
+		reporter.Pass(newReport(self.Title(), nil, nil))
 	}
 }
 

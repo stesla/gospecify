@@ -5,7 +5,8 @@ while [ $# -ne 0 ]; do
     shift
     case $param in
         -I) lib=$1 ; libs="$libs -I$lib"; shift ;;
-        *) files="$files $param"
+        -format) format=$1; shift;;
+        *) files="$param $files"
     esac
 done
 
@@ -14,13 +15,23 @@ downcase()
     tr [[:upper:]] [[:lower:]]
 }
 
+upcase()
+{
+    tr [[:lower:]] [[:upper:]]
+}
+
+capitalize()
+{
+    echo $(echo ${1:0:1} | upcase)$(echo ${1:1} | downcase)
+}
+
 find_os()
 {
     uname -s | downcase
 }
 
 find_arch()
-{ 
+{
     case `uname -p` in
         i386) echo "386" ;;
         x86_64) echo "amd64" ;;
@@ -44,7 +55,17 @@ default_o()
 [ x$GC == 'x' ] && GC=${O}g
 [ x$LD == 'x' ] && LD=${O}l
 
+normalize_format()
+{
+    if [[ "x$format" == x ]]; then
+        format=Dot
+    else
+        format=$(capitalize $format)
+    fi
+}
+
 create_main() {
+    normalize_format
     cat > _specify_.go <<EOF
 package main
 
@@ -70,7 +91,7 @@ func It(name string, block specify.ExampleBlock) {
 
 func main() {
 	specify.AdjustBlockDepth(1);
-	reporter := specify.DotReporter();
+        reporter := specify.${format}Reporter()
 	runner.Run(reporter);
 }
 EOF
