@@ -21,10 +21,7 @@
 PACKAGE=specify
 TESTPROG=test_$(PACKAGE)
 
-include $(GOROOT)/src/Make.$(GOARCH)
-export GC
-export LD
-export O
+include $(GOROOT)/src/Make.inc
 
 SRC=$(wildcard *.go)
 

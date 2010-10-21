@@ -58,8 +58,8 @@ func (self *basicReporter) Pending(r Report) { self.pending.PushBack(r) }
 
 func eachReport(l *list.List) <-chan Report {
 	ch := make(chan Report, l.Len())
-	for val := range l.Iter() {
-		if name, ok := val.(Report); !ok {
+	for e := l.Front(); e != nil; e = e.Next() {
+		if name, ok := e.Value.(Report); !ok {
 			panic("typecast error")
 		} else {
 			ch <- name

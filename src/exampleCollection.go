@@ -38,8 +38,8 @@ func makeExampleCollection() *exampleCollection {
 func (self *exampleCollection) Add(e example) { self.examples.PushBack(e) }
 
 func (self *exampleCollection) Init(runner *runner) {
-	for i := range self.examples.Iter() {
-		if ex, ok := i.(*complexExample); ok {
+	for e := self.examples.Front(); e != nil; e = e.Next() {
+		if ex, ok := e.Value.(*complexExample); ok {
 			runner.currentExample = ex
 			ex.Init()
 		}
@@ -47,8 +47,8 @@ func (self *exampleCollection) Init(runner *runner) {
 }
 
 func (self *exampleCollection) Run(reporter Reporter, before BeforeBlock, after afterBlock) {
-	for i := range self.examples.Iter() {
-		if ex, ok := i.(example); ok {
+	for e := self.examples.Front(); e != nil; e = e.Next() {
+		if ex, ok := e.Value.(example); ok {
 			ex.Run(reporter, before, after)
 		}
 	}
