@@ -34,9 +34,6 @@ test:
 	cd src; make testpackage
 	cd spec; $(SPECIFY) *.go
 
-package:
-	cd src; make package
-
-install: package
-	cp src/specify.a $(GOROOT)/pkg/$(GOOS)_$(GOARCH)
+install:
+	cd src; make install
 	cp bin/specify $(GOBIN)

@@ -1,5 +1,19 @@
 #!/bin/bash
 
+set -e
+
+export GOROOT=${GOROOT:-"$HOME/go"}
+if [ ! -d "$GOROOT" ]; then
+    echo 'Must set $GOROOT' 1>&2
+    exit 2
+fi
+
+eval $(gomake -j1 --no-print-directory -f "$GOROOT"/src/Make.inc go-env)
+if [ -z "$MAKE_GO_ENV_WORKED" ]; then
+    echo 'Failed to initialize Go environment' 1>&2
+    exit 2
+fi
+
 while [ $# -ne 0 ]; do
     param=$1
     shift
@@ -24,36 +38,6 @@ capitalize()
 {
     echo $(echo ${1:0:1} | upcase)$(echo ${1:1} | downcase)
 }
-
-find_os()
-{
-    uname -s | downcase
-}
-
-find_arch()
-{
-    case `uname -p` in
-        i386) echo "386" ;;
-        x86_64) echo "amd64" ;;
-        *) echo $1
-    esac
-}
-
-default_o()
-{
-    case $1 in
-        amd64) echo 6 ;;
-        arm) echo 7 ;;
-        386) echo 8 ;;
-    esac
-}
-
-[ x$GOROOT == 'x' ] && GOROOT=$HOME/go
-[ x$GOOS == 'x' ] && GOOS=$(find_os)
-[ x$GOARCH == 'x' ] && GOARCH=$(find_arch)
-[ x$O == 'x' ] && O=$(default_o $GOARCH)
-[ x$GC == 'x' ] && GC=${O}g
-[ x$LD == 'x' ] && LD=${O}l
 
 normalize_format()
 {
@@ -108,5 +92,5 @@ clean() {
 }
 
 create_main
-GOROOT=$GOROOT GOOS=$GOOS GOARCH=$GOARCH run
+run
 clean

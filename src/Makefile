@@ -18,34 +18,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-PACKAGE=specify
-TESTPROG=test_$(PACKAGE)
-
 include $(GOROOT)/src/Make.inc
 
-SRC=$(wildcard *.go)
+TARG=specify
+GOFILES=$(wildcard *.go)
 
-all: test
+include $(GOROOT)/src/Make.pkg
 
-clean:
-	rm -rf *.[a68] $(TESTPROG) _test
+testpackage: test$(TARG).a
 
-package: $(PACKAGE).a
+test$(TARG).a: test$(TARG).$O
+	gopack grc $@ test$(TARG).$O
 
-$(PACKAGE).a: $(PACKAGE).$O
-	gopack grc $@ $(PACKAGE).$O
-
-$(PACKAGE).$O: $(SRC)
-	$(GC) -o $@ $(SRC)
-
-testpackage: test$(PACKAGE).a
-
-test$(PACKAGE).a: test$(PACKAGE).$O
-	gopack grc $@ test$(PACKAGE).$O
-
-test$(PACKAGE).$O: _test $(SRC)
-	for i in $(SRC); do sed -e 's/package $(PACKAGE)/package test$(PACKAGE)/' < $$i > _test/$$i; done
+test$(TARG).$O: _test $(GOFILES)
+	@mkdir -p _test
+	for i in $(GOFILES); do sed -e 's/package $(TARG)/package test$(TARG)/' < $$i > _test/$$i; done
 	$(GC) -o $@ _test/*.go
-
-_test:
-	mkdir _test
