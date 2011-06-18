@@ -18,20 +18,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-SPECIFY=specify
 
-all: test
+test:
+	cd src; make test
 
 clean:
 	cd src; make clean
-
-format:
-	cd src; gofmt -w *.go
-	cd spec; gofmt -w *.go
-
-test:
-	cd src; make testpackage
-	cd spec; $(SPECIFY) *.go
 
 install:
 	cd src; make install

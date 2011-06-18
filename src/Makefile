@@ -21,6 +21,26 @@
 include $(GOROOT)/src/Make.inc
 
 TARG=specify
-GOFILES=$(wildcard *.go)
+GOFILES=\
+	assertion.go \
+	basicReporter.go \
+	beMatcher.go \
+	complexExample.go \
+	dotReporter.go \
+	equalityMatcher.go \
+	exampleCollection.go \
+	location.go \
+	outputReporter.go \
+	report.go \
+	runner.go \
+	simpleExample.go \
+	specdocReporter.go \
+	specify.go
 
 include $(GOROOT)/src/Make.pkg
+
+format:
+	gofmt -w *.go
+
+test: testpackage
+	specify spec_*.go *_spec.go
