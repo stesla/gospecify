@@ -88,9 +88,10 @@ run() {
 }
 
 clean() {
-    rm _specify_.* $O.out
+    rm -f _specify_.* $O.out
 }
 
+clean
 create_main
 run
 clean
