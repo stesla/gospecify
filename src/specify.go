@@ -21,7 +21,11 @@ THE SOFTWARE.
 */
 package specify
 
-import "os"
+import (
+	"flag"
+	"os"
+	"strings"
+)
 
 type AfterFunc func(Context)
 type BeforeBlock func(Example)
@@ -101,3 +105,21 @@ func BeNil() Matcher                      { return Be(nil) }
 func BeFalse() Matcher                    { return Be(false) }
 func BeTrue() Matcher                     { return Be(true) }
 func BeEqualTo(value interface{}) Matcher { return newEqualityMatcher(value) }
+
+func mainReporter(format string) Reporter {
+	switch format {
+	case "dot":
+		return DotReporter()
+	case "specdoc":
+		return SpecdocReporter()
+	}
+	panic("invalid reporter")
+}
+
+// Exported for the specify command
+func Main(runner Runner) {
+	var format *string = flag.String("format", "dot", "output format, one of: dot, specdoc")
+	flag.Parse()
+	AdjustBlockDepth(1)
+	runner.Run(mainReporter(strings.ToLower(*format)))
+}

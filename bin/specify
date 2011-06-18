@@ -1,14 +1,12 @@
 #!/bin/bash
 
-set -e
-
-export GOROOT=${GOROOT:-"$HOME/go"}
+export GOROOT=${GOROOT:-$HOME/go}
 if [ ! -d "$GOROOT" ]; then
-    echo 'Must set $GOROOT' 1>&2
+    echo 'Must set $GOROOT to a directory' 1>&2
     exit 2
 fi
 
-eval $(gomake -j1 --no-print-directory -f "$GOROOT"/src/Make.inc go-env)
+eval $(gomake -j1 --no-print-directory -f $GOROOT/src/Make.inc go-env)
 if [ -z "$MAKE_GO_ENV_WORKED" ]; then
     echo 'Failed to initialize Go environment' 1>&2
     exit 2
@@ -24,32 +22,7 @@ while [ $# -ne 0 ]; do
     esac
 done
 
-downcase()
-{
-    tr [[:upper:]] [[:lower:]]
-}
-
-upcase()
-{
-    tr [[:lower:]] [[:upper:]]
-}
-
-capitalize()
-{
-    echo $(echo ${1:0:1} | upcase)$(echo ${1:1} | downcase)
-}
-
-normalize_format()
-{
-    if [[ "x$format" == x ]]; then
-        format=Dot
-    else
-        format=$(capitalize $format)
-    fi
-}
-
-create_main() {
-    normalize_format
+function create_main {
     cat > _specify_.go <<EOF
 package main
 
@@ -74,24 +47,21 @@ func It(name string, block specify.ExampleBlock) {
 }
 
 func main() {
-	specify.AdjustBlockDepth(1);
-        reporter := specify.${format}Reporter()
-	runner.Run(reporter);
+	specify.Main(runner);
 }
 EOF
 }
 
-run() {
+function run {
     $GC -o _specify_.$O $libs _specify_.go $files \
         && $LD _specify_.$O \
-        && ./$O.out
+        && ./$O.out ${format:+-format=$format}
 }
 
-clean() {
+function clean {
     rm -f _specify_.* $O.out
 }
 
-clean
 create_main
 run
 clean
