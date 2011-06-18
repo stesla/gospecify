@@ -24,13 +24,3 @@ TARG=specify
 GOFILES=$(wildcard *.go)
 
 include $(GOROOT)/src/Make.pkg
-
-testpackage: test$(TARG).a
-
-test$(TARG).a: test$(TARG).$O
-	gopack grc $@ test$(TARG).$O
-
-test$(TARG).$O: _test $(GOFILES)
-	@mkdir -p _test
-	for i in $(GOFILES); do sed -e 's/package $(TARG)/package test$(TARG)/' < $$i > _test/$$i; done
-	$(GC) -o $@ _test/*.go

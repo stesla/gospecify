@@ -23,7 +23,7 @@ package main
 
 import (
 	. "specify"
-	t "../src/testspecify"
+	t "../src/_test/specify"
 )
 
 func pass(t.Example) {}

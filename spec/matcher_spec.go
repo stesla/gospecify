@@ -24,7 +24,7 @@ package main
 import (
 	"bytes"
 	. "specify"
-	t "../src/testspecify"
+	t "../src/_test/specify"
 )
 
 func init() {

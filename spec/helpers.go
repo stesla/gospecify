@@ -23,7 +23,7 @@ package main
 
 import (
 	"os"
-	t "../src/testspecify"
+	t "../src/_test/specify"
 )
 
 func makeError(s string) os.Error { return os.NewError(s) }
