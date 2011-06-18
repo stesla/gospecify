@@ -26,12 +26,14 @@ import (
 	t "../src/testspecify"
 )
 
+func pass(t.Example) {}
+
 func init() {
 	Describe("After", func() {
 		It("should run the block after each test", func(e Example) {
 			ch := make(chan bool, 1)
 			testRun("", func(r t.Runner) {
-				r.It("should pass", func(t.Example) { /* pass */ })
+				r.It("should pass", pass)
 				r.After(func(t.Context) { ch <- true })
 			})
 			_, ok := <-ch
@@ -40,10 +42,10 @@ func init() {
 
 		It("should fail a test if the after has an error", func(e Example) {
 			reporter := testRun("", func(r t.Runner) {
-				r.It("should pass", func(t.Example) { /* pass */ })
+				r.It("should pass", pass)
 				r.After(func(c t.Context) { c.Error(makeError("boom")) })
 			})
-			e.Value(reporter).Should(HaveErrorAt("after_spec.go:44"))
+			e.Value(reporter).Should(HaveErrorAt("after_spec.go:46"))
 		})
 
 		It("should see the fields set in the example", func(e Example) {
