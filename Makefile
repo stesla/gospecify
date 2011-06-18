@@ -18,7 +18,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-GOBIN=$(HOME)/bin
 SPECIFY=specify
 
 all: test
@@ -36,4 +35,4 @@ test:
 
 install:
 	cd src; make install
-	cp bin/specify $(GOBIN)
+	cp bin/specify $(GOROOT)/bin
