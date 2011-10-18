@@ -43,4 +43,4 @@ format:
 	gofmt -w *.go
 
 test: testpackage
-	specify spec_*.go *_spec.go
+	../bin/specify -I _obj/ spec_*.go *_spec.go
