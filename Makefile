@@ -27,4 +27,4 @@ clean:
 
 install:
 	cd src; make install
-	cp bin/specify $(GOROOT)/bin
+	install bin/specify $(GOROOT)/bin
