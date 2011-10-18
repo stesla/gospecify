@@ -16,7 +16,7 @@ while [ $# -ne 0 ]; do
     param=$1
     shift
     case $param in
-        -I) lib=$1 ; libs="$libs -I$lib"; shift ;;
+        -I) lib=$1 ; libs="$libs -I$lib"; llibs="$llibs -L $lib"; shift ;;
         -format) format=$1; shift;;
         *) files="$param $files"
     esac
@@ -54,7 +54,7 @@ EOF
 
 function run {
     $GC -o _specify_.$O $libs _specify_.go $files \
-        && $LD _specify_.$O \
+        && $LD $llibs _specify_.$O \
         && ./$O.out ${format:+-format=$format}
 }
 
