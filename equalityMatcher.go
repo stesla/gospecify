@@ -23,7 +23,7 @@ package specify
 
 import (
 	"fmt"
-	"os"
+	"errors"
 )
 
 type equalto interface {
@@ -46,16 +46,16 @@ func (self equalityMatcher) test(val interface{}) bool {
 	return val == self.expected
 }
 
-func (self equalityMatcher) Should(actual interface{}) os.Error {
+func (self equalityMatcher) Should(actual interface{}) error{
 	if !self.test(actual) {
-		return os.NewError(fmt.Sprintf("expected `%v` to be equal to `%v`", actual, self.expected))
+		return errors.New(fmt.Sprintf("expected `%v` to be equal to `%v`", actual, self.expected))
 	}
 	return nil
 }
 
-func (self equalityMatcher) ShouldNot(actual interface{}) os.Error {
+func (self equalityMatcher) ShouldNot(actual interface{}) error{
 	if self.test(actual) {
-		return os.NewError(fmt.Sprintf("expected `%v` not to be equal to `%v`", actual, self.expected))
+		return errors.New(fmt.Sprintf("expected `%v` not to be equal to `%v`", actual, self.expected))
 	}
 	return nil
 }

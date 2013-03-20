@@ -23,7 +23,6 @@ package specify
 
 import (
 	"flag"
-	"os"
 	"strings"
 )
 
@@ -48,7 +47,7 @@ type Location interface {
 
 type Report interface {
 	Title() string
-	Error() os.Error
+	Error() error
 	Location() Location
 }
 
@@ -79,7 +78,7 @@ func DotReporter() ReporterSummary     { return makeDotReporter() }
 func SpecdocReporter() ReporterSummary { return makeSpecdocReporter() }
 
 type Context interface {
-	Error(os.Error)
+	Error(error)
 	GetField(string) interface{}
 	SetField(string, interface{})
 }
@@ -96,8 +95,8 @@ type Assertion interface {
 }
 
 type Matcher interface {
-	Should(interface{}) os.Error
-	ShouldNot(interface{}) os.Error
+	Should(interface{}) error
+	ShouldNot(interface{}) error
 }
 
 func Be(value interface{}) Matcher        { return makeBeMatcher(value) }

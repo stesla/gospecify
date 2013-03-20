@@ -23,7 +23,7 @@ package specify
 
 import (
 	"fmt"
-	"os"
+    "errors"
 )
 
 type simpleExample struct {
@@ -46,7 +46,7 @@ func (self *simpleExample) Title() string {
 
 func (self *simpleExample) Run(reporter Reporter, before BeforeBlock, after afterBlock) {
 	if self.block == nil {
-		reporter.Pending(newReport(self.Title(), os.NewError("not implemented"), self.loc))
+		reporter.Pending(newReport(self.Title(), errors.New("not implemented"), self.loc))
 		return
 	}
 
@@ -70,7 +70,7 @@ func (self *simpleExample) Run(reporter Reporter, before BeforeBlock, after afte
 	}
 }
 
-func (self *simpleExample) Error(err os.Error) {
+func (self *simpleExample) Error(err error) {
 	self.error <- newReport(self.Title(), err, newErrorLocation())
 }
 

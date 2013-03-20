@@ -22,26 +22,27 @@ THE SOFTWARE.
 package specify
 
 import (
-	"fmt"
-	"os"
+	"runtime"
 )
 
-type beMatcher struct {
-	expected interface{}
+type assertion struct {
+	example *simpleExample
+	value   interface{}
 }
 
-func makeBeMatcher(value interface{}) Matcher { return beMatcher{value} }
-
-func (self beMatcher) Should(actual interface{}) (error os.Error) {
-	if actual != self.expected {
-		error = os.NewError(fmt.Sprintf("expected `%v` to be `%v`", actual, self.expected))
-	}
-	return
+func (self assertion) fail(err error) {
+	self.example.fail <- newReport(self.example.Title(), err, newAssertionLocation())
+	runtime.Goexit()
 }
 
-func (self beMatcher) ShouldNot(actual interface{}) (error os.Error) {
-	if actual == self.expected {
-		error = os.NewError(fmt.Sprintf("expected `%v` not to be `%v`", actual, self.expected))
+func (self assertion) Should(matcher Matcher) {
+	if err := matcher.Should(self.value); err != nil {
+		self.fail(err)
 	}
-	return
+}
+
+func (self assertion) ShouldNot(matcher Matcher) {
+	if err := matcher.ShouldNot(self.value); err != nil {
+		self.fail(err)
+	}
 }
