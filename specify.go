@@ -117,7 +117,7 @@ func mainReporter(format string) Reporter {
 
 // Exported for the specify command
 func Main(runner Runner) {
-	var format *string = flag.String("format", "dot", "output format, one of: dot, specdoc")
+	var format *string = flag.String("format", "specdoc", "output format, one of: dot, specdoc")
 	flag.Parse()
 	AdjustBlockDepth(1)
 	runner.Run(mainReporter(strings.ToLower(*format)))
