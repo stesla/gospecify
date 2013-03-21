@@ -19,30 +19,28 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package main
+package specify
 
 import (
-	. "specify"
-	t "./_test/specify"
 )
 
 func init() {
 	Describe("Running", func() {
 		Before(func(e Example) {
-			reporter := testRun("basic", func(r t.Runner) {
-				r.It("pass", func(e t.Example) {
-					e.Value(7 * 6).Should(t.Be(42))
-					e.Value(1).ShouldNot(t.Be(2))
+			reporter := testRun("basic", func(r Runner) {
+				r.It("pass", func(e Example) {
+					e.Value(7 * 6).Should(Be(42))
+					e.Value(1).ShouldNot(Be(2))
 				})
 
-				r.It("fail", func(e t.Example) {
-					e.Value(7 * 6).ShouldNot(t.Be(42))
-					e.Value(1).Should(t.Be(2))
+				r.It("fail", func(e Example) {
+					e.Value(7 * 6).ShouldNot(Be(42))
+					e.Value(1).Should(Be(2))
 				})
 
 				r.It("pending", nil)
 
-				r.It("error", func(e t.Example) { e.Error(makeError("catastrophe")) })
+				r.It("error", func(e Example) { e.Error(makeError("catastrophe")) })
 			})
 			e.SetField("reporter", reporter)
 		})

@@ -19,62 +19,60 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package main
+package specify
 
 import (
 	"bytes"
-	. "specify"
-	t "./_test/specify"
 )
 
 func init() {
 	Describe("Be", func() {
 		It("should match reference equality", func(e Example) {
 			var a, b int
-			e.Value(&a).Should(t.Be(&a))
-			e.Value(&a).ShouldNot(t.Be(&b))
+			e.Value(&a).Should(Be(&a))
+			e.Value(&a).ShouldNot(Be(&b))
 		})
 
 		It("should not care about the value", func(e Example) {
 			a := 42
 			b := 42
-			e.Value(&a).ShouldNot(t.Be(&b))
+			e.Value(&a).ShouldNot(Be(&b))
 		})
 	})
 
 	Describe("BeNil", func() {
-		It("should match nil", func(e Example) { e.Value(nil).Should(t.BeNil()) })
-		It("should not match non-nil values", func(e Example) { e.Value(42).ShouldNot(t.BeNil()) })
-		It("should not match zero", func(e Example) { e.Value(0).ShouldNot(t.BeNil()) })
-		It("should not match false", func(e Example) { e.Value(false).ShouldNot(t.BeNil()) })
+		It("should match nil", func(e Example) { e.Value(nil).Should(BeNil()) })
+		It("should not match non-nil values", func(e Example) { e.Value(42).ShouldNot(BeNil()) })
+		It("should not match zero", func(e Example) { e.Value(0).ShouldNot(BeNil()) })
+		It("should not match false", func(e Example) { e.Value(false).ShouldNot(BeNil()) })
 	})
 
 	Describe("BeFalse", func() {
-		It("should match false", func(e Example) { e.Value(false).Should(t.BeFalse()) })
-		It("should not match true", func(e Example) { e.Value(true).ShouldNot(t.BeFalse()) })
-		It("should not match nil", func(e Example) { e.Value(nil).ShouldNot(t.BeFalse()) })
-		It("should not match zero", func(e Example) { e.Value(0).ShouldNot(t.BeFalse()) })
-		It("should not match other values", func(e Example) { e.Value(42).ShouldNot(t.BeFalse()) })
+		It("should match false", func(e Example) { e.Value(false).Should(BeFalse()) })
+		It("should not match true", func(e Example) { e.Value(true).ShouldNot(BeFalse()) })
+		It("should not match nil", func(e Example) { e.Value(nil).ShouldNot(BeFalse()) })
+		It("should not match zero", func(e Example) { e.Value(0).ShouldNot(BeFalse()) })
+		It("should not match other values", func(e Example) { e.Value(42).ShouldNot(BeFalse()) })
 	})
 
 	Describe("BeTrue", func() {
-		It("should match true", func(e Example) { e.Value(true).Should(t.BeTrue()) })
-		It("should not match false", func(e Example) { e.Value(false).ShouldNot(t.BeTrue()) })
-		It("should not match other values", func(e Example) { e.Value(42).ShouldNot(t.BeTrue()) })
+		It("should match true", func(e Example) { e.Value(true).Should(BeTrue()) })
+		It("should not match false", func(e Example) { e.Value(false).ShouldNot(BeTrue()) })
+		It("should not match other values", func(e Example) { e.Value(42).ShouldNot(BeTrue()) })
 	})
 
 	Describe("BeEqualTo", func() {
 		It("should match numbers", func(e Example) {
-			e.Value(1).Should(t.BeEqualTo(1))
-			e.Value(1.2).ShouldNot(t.BeEqualTo(2.1))
+			e.Value(1).Should(BeEqualTo(1))
+			e.Value(1.2).ShouldNot(BeEqualTo(2.1))
 		})
 
 		It("should match strings", func(e Example) {
-			e.Value("foo").Should(t.BeEqualTo("foo"))
-			e.Value("Doctor").ShouldNot(t.BeEqualTo("Donna"))
+			e.Value("foo").Should(BeEqualTo("foo"))
+			e.Value("Doctor").ShouldNot(BeEqualTo("Donna"))
 		})
 
-		It("should match things with EqualTo()", func(e Example) { e.Value([]byte{1, 2}).Should(t.BeEqualTo(bslice([]byte{1, 2}))) })
+		It("should match things with EqualTo()", func(e Example) { e.Value([]byte{1, 2}).Should(BeEqualTo(bslice([]byte{1, 2}))) })
 	})
 }
 

@@ -19,40 +19,38 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package main
+package specify
 
 import (
-	. "specify"
-	t "./_test/specify"
 )
 
-func pass(t.Example) {}
+func pass(Example) {}
 
 func init() {
 	Describe("After", func() {
 		It("should run the block after each test", func(e Example) {
 			ch := make(chan bool, 1)
-			testRun("", func(r t.Runner) {
+			testRun("", func(r Runner) {
 				r.It("should pass", pass)
-				r.After(func(t.Context) { ch <- true })
+				r.After(func(Context) { ch <- true })
 			})
 			_, ok := <-ch
 			e.Value(ok).Should(Be(true))
 		})
 
 		It("should fail a test if the after has an error", func(e Example) {
-			reporter := testRun("", func(r t.Runner) {
+			reporter := testRun("", func(r Runner) {
 				r.It("should pass", pass)
-				r.After(func(c t.Context) { c.Error(makeError("boom")) })
+				r.After(func(c Context) { c.Error(makeError("boom")) })
 			})
 			e.Value(reporter).Should(HaveErrorAt("after_spec.go:46"))
 		})
 
 		It("should see the fields set in the example", func(e Example) {
 			ch := make(chan interface{}, 1)
-			testRun("", func(r t.Runner) {
-				r.It("should pass", func(e t.Example) { e.SetField("foo", "bar") })
-				r.After(func(c t.Context) { ch <- c.GetField("foo") })
+			testRun("", func(r Runner) {
+				r.It("should pass", func(e Example) { e.SetField("foo", "bar") })
+				r.After(func(c Context) { ch <- c.GetField("foo") })
 			})
 			e.Value(<-ch).Should(Be("bar"))
 		})
