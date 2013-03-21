@@ -22,7 +22,7 @@ THE SOFTWARE.
 package specify
 
 import (
-	"fmt"
+	fmt "github.com/doun/terminal/color"
 )
 
 type OutputStrategy interface {
@@ -59,7 +59,7 @@ func printList(label string, reports <-chan Report) {
 }
 
 func (self *outputReporter) Finish() {
-	fmt.Printf("\nPassing: %v  Failing: %v  Pending: %v  Errors: %v\n", self.PassingCount(), self.FailingCount(), self.PendingCount(), self.ErrorCount())
+	fmt.Printf("\n@{g}Passing: %v  @{r}Failing: %v  @{y}Pending: %v  @{rW}Errors: %v\n", self.PassingCount(), self.FailingCount(), self.PendingCount(), self.ErrorCount())
 	if self.ErrorCount() > 0 {
 		printList("Errors", self.EachError())
 	}

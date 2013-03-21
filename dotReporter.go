@@ -22,14 +22,14 @@ THE SOFTWARE.
 package specify
 
 import (
-	"fmt"
+	fmt "github.com/doun/terminal/color"
 )
 
 type dotFormat int
 
 func makeDotReporter() ReporterSummary { return makeOutputReporter(dotFormat(0)) }
 
-func (dotFormat) Error(r Report)   { fmt.Print("E") }
-func (dotFormat) Fail(r Report)    { fmt.Print("F") }
-func (dotFormat) Pass(r Report)    { fmt.Print(".") }
-func (dotFormat) Pending(r Report) { fmt.Print("*") }
+func (dotFormat) Error(r Report)   { fmt.Print("@rE") }
+func (dotFormat) Fail(r Report)    { fmt.Print("@bF") }
+func (dotFormat) Pass(r Report)    { fmt.Print("@G.") }
+func (dotFormat) Pending(r Report) { fmt.Print("@y*") }
