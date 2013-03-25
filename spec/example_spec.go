@@ -21,7 +21,7 @@ THE SOFTWARE.
 */
 package specify
 
-
+import . "github.com/doun/gospecify"
 func init() {
 	Describe("Math", func() {
 		It("adds", func(e Example) { e.Value(1 + 1).Should(Be(2)) })

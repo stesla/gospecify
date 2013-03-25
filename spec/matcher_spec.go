@@ -23,6 +23,7 @@ package specify
 
 import (
 	"bytes"
+    . "github.com/doun/gospecify"
 )
 
 func init() {

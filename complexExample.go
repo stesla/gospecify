@@ -20,33 +20,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 package specify
+import "fmt"
 
 type complexExample struct {
-	name        string
-	afterBlock  afterBlock
-	beforeBlock BeforeBlock
-	block       ExampleGroupBlock
-	*exampleCollection
+    name        string
+    afterBlock  afterBlock
+    beforeBlock BeforeBlock
+    block       ExampleGroupBlock
+    *exampleCollection
 }
 
 func makeComplexExample(name string, block ExampleGroupBlock) *complexExample {
-	return &complexExample{name, emptyAfter, emptyBefore, block, makeExampleCollection()}
+    return &complexExample{name, emptyAfter, emptyBefore, block, makeExampleCollection()}
 }
 
 func (self *complexExample) AddBefore(block BeforeBlock) {
-	self.beforeBlock = block
+    self.beforeBlock = block
 }
 
-func (self *complexExample) Title() string{
+func (self *complexExample) Title() string {
     return self.name
 }
 
 func (self *complexExample) AddAfter(block afterBlock) {
-	self.afterBlock = block
+    self.afterBlock = block
 }
 
 func (self *complexExample) Init() { self.block() }
 func (self *complexExample) Run(reporter Reporter, _ BeforeBlock, _ afterBlock) {
-	/* TODO: Nested describes get weird with before blocks */
-	self.exampleCollection.Run(reporter, self.beforeBlock, self.afterBlock,"^.*$")
+    /* TODO: Nested describes get weird with before blocks */
+    fmt.Println(self.Title())
+    self.exampleCollection.Run(reporter, self.beforeBlock, self.afterBlock, "^.*$")
 }

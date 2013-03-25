@@ -22,6 +22,7 @@ THE SOFTWARE.
 package specify
 
 import (
+    . "github.com/doun/gospecify"
 )
 
 func pass(Example) {}
