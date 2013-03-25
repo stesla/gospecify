@@ -31,6 +31,6 @@ func testRun(name string, block func(Runner)) (reporter ReporterSummary) {
 	runner := NewRunner()
 	runner.Describe(name, func() { block(runner) })
 	reporter = NewBasicReporter()
-	runner.Run(reporter)
+	runner.Run(reporter,"^.*$")
 	return
 }

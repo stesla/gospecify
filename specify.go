@@ -36,7 +36,7 @@ type Runner interface {
 	Before(BeforeBlock)
 	Describe(string, ExampleGroupBlock)
 	It(string, ExampleBlock)
-	Run(Reporter)
+	Run(Reporter, string)
 }
 
 func NewRunner() Runner { return makeRunner() }
@@ -78,6 +78,7 @@ func DotReporter() ReporterSummary     { return makeDotReporter() }
 func SpecdocReporter() ReporterSummary { return makeSpecdocReporter() }
 
 type Context interface {
+    Pending(...string)
 	Error(error)
 	GetField(string) interface{}
 	SetField(string, interface{})
@@ -118,7 +119,8 @@ func mainReporter(format string) Reporter {
 // Exported for the specify command
 func Main(runner Runner) {
 	var format *string = flag.String("format", "specdoc", "output format, one of: dot, specdoc")
+    var run *string = flag.String("sp.run","^.*$","examples to run, regexp")
 	flag.Parse()
 	AdjustBlockDepth(1)
-	runner.Run(mainReporter(strings.ToLower(*format)))
+	runner.Run(mainReporter(strings.ToLower(*format)),*run)
 }

@@ -21,35 +21,44 @@ THE SOFTWARE.
 */
 package specify
 
+import "regexp"
 import "container/list"
 
 type example interface {
-	Run(r Reporter, before BeforeBlock, after afterBlock)
+    Run(r Reporter, before BeforeBlock, after afterBlock)
+    Title() string
 }
 
 type exampleCollection struct {
-	examples *list.List
+    examples *list.List
 }
 
 func makeExampleCollection() *exampleCollection {
-	return &exampleCollection{list.New()}
+    return &exampleCollection{list.New()}
 }
 
 func (self *exampleCollection) Add(e example) { self.examples.PushBack(e) }
 
 func (self *exampleCollection) Init(runner *runner) {
-	for e := self.examples.Front(); e != nil; e = e.Next() {
-		if ex, ok := e.Value.(*complexExample); ok {
-			runner.currentExample = ex
-			ex.Init()
-		}
-	}
+    for e := self.examples.Front(); e != nil; e = e.Next() {
+        if ex, ok := e.Value.(*complexExample); ok {
+            runner.currentExample = ex
+            ex.Init()
+        }
+    }
 }
 
-func (self *exampleCollection) Run(reporter Reporter, before BeforeBlock, after afterBlock) {
-	for e := self.examples.Front(); e != nil; e = e.Next() {
-		if ex, ok := e.Value.(example); ok {
-			ex.Run(reporter, before, after)
-		}
-	}
+func (self *exampleCollection) Run(reporter Reporter, before BeforeBlock, after afterBlock, filter string) {
+    for e := self.examples.Front(); e != nil; e = e.Next() {
+        if ex, ok := e.Value.(example); ok {
+            runit := false
+            regex := regexp.MustCompile(filter)
+            if regex.Match([]byte(ex.Title())) {
+                runit = true
+            }
+            if runit {
+                ex.Run(reporter, before, after)
+            }
+        }
+    }
 }

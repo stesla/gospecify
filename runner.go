@@ -60,8 +60,8 @@ func (self *runner) It(name string, block ExampleBlock) {
 	}
 }
 
-func (self *runner) Run(reporter Reporter) {
+func (self *runner) Run(reporter Reporter,filter string) {
 	self.examples.Init(self)
-	self.examples.Run(reporter, emptyBefore, emptyAfter)
+	self.examples.Run(reporter, emptyBefore, emptyAfter, filter)
 	reporter.Finish()
 }
