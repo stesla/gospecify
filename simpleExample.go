@@ -27,18 +27,19 @@ import (
 )
 
 type simpleExample struct {
-    parent  *complexExample
-    name    string
-    block   ExampleBlock
-    fields  map[string]interface{}
-    error   chan Report
-    fail    chan Report
-    loc     Location
-    pending chan Report
+    parent   *complexExample
+    name     string
+    block    ExampleBlock
+    fields   map[string]interface{}
+    error    chan Report
+    fail     chan Report
+    loc      Location
+    pending  chan Report
+    asserted bool
 }
 
 func makeSimpleExample(parent *complexExample, name string, block ExampleBlock, loc Location) *simpleExample {
-    return &simpleExample{parent, name, block, make(map[string]interface{}), make(chan Report), make(chan Report), loc, make(chan Report)}
+    return &simpleExample{parent, name, block, make(map[string]interface{}), make(chan Report), make(chan Report), loc, make(chan Report), false}
 }
 
 func (self *simpleExample) Title() string {
@@ -67,7 +68,13 @@ func (self *simpleExample) Run(reporter Reporter, before BeforeBlock, after afte
     case report := <-self.fail:
         reporter.Fail(report)
     case <-pass:
-        reporter.Pass(newReport(self.Title(), nil, nil))
+        if self.asserted {
+            reporter.Pass(newReport(self.Title(), nil, nil))
+        } else {
+            reporter.Pending(newReport(self.Title(), nil, nil))
+        }
+    case report := <-self.pending:
+        reporter.Pending(report)
     }
 }
 func (self *simpleExample) Pending(msg ...string) {
