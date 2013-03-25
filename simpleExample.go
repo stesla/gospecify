@@ -43,7 +43,7 @@ func makeSimpleExample(parent *complexExample, name string, block ExampleBlock, 
 }
 
 func (self *simpleExample) Title() string {
-    return fmt.Sprintf("%v %v", self.parent.name, self.name)
+    return fmt.Sprintf("%vv", self.name)
 }
 
 func (self *simpleExample) Run(reporter Reporter, before BeforeBlock, after afterBlock) {
