@@ -71,7 +71,7 @@ func (self *simpleExample) Run(reporter Reporter, before BeforeBlock, after afte
         if self.asserted {
             reporter.Pass(newReport(self.Title(), nil, nil))
         } else {
-            reporter.Pending(newReport(self.Title(), nil, nil))
+            reporter.Pending(newReport(self.Title(), errors.New("no assertion"), nil))
         }
     case report := <-self.pending:
         reporter.Pending(report)
