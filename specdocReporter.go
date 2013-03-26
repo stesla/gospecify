@@ -22,7 +22,7 @@ THE SOFTWARE.
 package specify
 
 import (
-	//"fmt"
+    //"fmt"
     fmt "github.com/doun/terminal/color"
 )
 
@@ -34,5 +34,5 @@ func (specdocFormat) Error(r Report) { fmt.Printf("- @{rW}%s (ERROR)\n", r.Title
 func (specdocFormat) Fail(r Report)  { fmt.Printf("- @{r}%s (FAILED)\n", r.Title()) }
 func (specdocFormat) Pass(r Report)  { fmt.Printf("- @g%s\n", r.Title()) }
 func (specdocFormat) Pending(r Report) {
-	fmt.Printf("- @y%s (pending...)\n", r.Title())
+    fmt.Printf("- @y%s (pending:%v)\n", r.Title(), r.Error())
 }
