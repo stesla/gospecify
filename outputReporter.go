@@ -22,61 +22,79 @@ THE SOFTWARE.
 package specify
 
 import (
-	fmt "github.com/doun/terminal/color"
+    fmt "github.com/doun/terminal/color"
 )
 
 type OutputStrategy interface {
-	Error(Report)
-	Fail(Report)
-	Pass(Report)
-	Pending(Report)
+    Error(Report)
+    Fail(Report)
+    Pass(Report)
+    Pending(Report)
 }
 
 type outputReporter struct {
-	*basicReporter
-	output OutputStrategy
+    *basicReporter
+    output OutputStrategy
 }
 
 func makeOutputReporter(s OutputStrategy) ReporterSummary {
-	return &outputReporter{NewBasicReporter(), s}
+    return &outputReporter{NewBasicReporter(), s}
 }
 
 func (self *outputReporter) Error(r Report) {
-	self.basicReporter.Error(r)
-	self.output.Error(r)
+    self.basicReporter.Error(r)
+    self.output.Error(r)
 }
 
 func (self *outputReporter) Fail(r Report) {
-	self.basicReporter.Fail(r)
-	self.output.Fail(r)
+    self.basicReporter.Fail(r)
+    self.output.Fail(r)
 }
 
 func printList(label string, reports <-chan Report) {
-	fmt.Printf("\n%v:\n", label)
-	for r := range reports {
-		fmt.Printf("\n- %v - %v\n  %v\n", r.Title(), r.Error(), r.Location())
-	}
+    fmt.Printf("\n%v:\n", label)
+    for r := range reports {
+        fmt.Printf("\n- %v - %v\n  %v\n", r.Title(), r.Error(), r.Location())
+    }
 }
 
 func (self *outputReporter) Finish() {
-	fmt.Printf("\n@{g}Passing: %v  @{r}Failing: %v  @{y}Pending: %v  @{rW}Errors: %v\n", self.PassingCount(), self.FailingCount(), self.PendingCount(), self.ErrorCount())
-	if self.ErrorCount() > 0 {
-		printList("Errors", self.EachError())
-	}
-	if self.FailingCount() > 0 {
-		printList("Failing Examples", self.EachFailure())
-	}
-	if self.PendingCount() > 0 {
-		printList("Pending Examples", self.EachPending())
-	}
+    errs := self.ErrorCount()
+    fails := self.FailingCount()
+    pends := self.PendingCount()
+    if errs+fails+pends > 0 {
+        fmt.Printf("@{g}Passing:%v", self.PassingCount())
+    } else {
+        fmt.Printf("@{wG}WOW, All pass!\n")
+    }
+    if fails > 0 {
+        fmt.Printf("@{r}Failing: %v", fails)
+    }
+    if pends > 0 {
+        fmt.Printf("@{y}Pending: %v", pends)
+    }
+    if errs > 0 {
+        fmt.Printf("@{rW}Errors: %v \n")
+    }
+    fmt.Printf("\r")
+
+    if errs > 0 {
+        printList("Errors", self.EachError())
+    }
+    if fails > 0 {
+        printList("Failing Examples", self.EachFailure())
+    }
+    if pends > 0 {
+        printList("Pending Examples", self.EachPending())
+    }
 }
 
 func (self *outputReporter) Pass(r Report) {
-	self.basicReporter.Pass(r)
-	self.output.Pass(r)
+    self.basicReporter.Pass(r)
+    self.output.Pass(r)
 }
 
 func (self *outputReporter) Pending(r Report) {
-	self.basicReporter.Pending(r)
-	self.output.Pending(r)
+    self.basicReporter.Pending(r)
+    self.output.Pending(r)
 }
