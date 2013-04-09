@@ -5,7 +5,8 @@ This provides a BDD syntax for testing your Go code. It should be familiar to an
 ## Installation
 
 The Makefile assumes that you have the environment variables that are typically set for using the Go language (GOROOT, GOARCH, GOOS, and optionally GOBIN). Please refer to the GO installation instructions (http://golang.org/doc/install.html) for more information on properly setting them.
-Just use go get to install
+
+Just use go get to install as other packages
 ## Usage
 copy spec/spec_func.go to your spec folder, and then u can write your tests as spec/example_spec.go
 when finished:
