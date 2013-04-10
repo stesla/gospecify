@@ -23,13 +23,25 @@ package specify
 
 import (
 	"fmt"
+	"errors"
 )
 
-type dotFormat int
+type beMatcher struct {
+	expected interface{}
+}
 
-func makeDotReporter() ReporterSummary { return makeOutputReporter(dotFormat(0)) }
+func makeBeMatcher(value interface{}) Matcher { return beMatcher{value} }
 
-func (dotFormat) Error(r Report)   { fmt.Print("E") }
-func (dotFormat) Fail(r Report)    { fmt.Print("F") }
-func (dotFormat) Pass(r Report)    { fmt.Print(".") }
-func (dotFormat) Pending(r Report) { fmt.Print("*") }
+func (self beMatcher) Should(actual interface{}) (err error) {
+	if actual != self.expected {
+		err = errors.New(fmt.Sprintf("expected `%v` to be `%v`", actual, self.expected))
+	}
+	return
+}
+
+func (self beMatcher) ShouldNot(actual interface{}) (err error) {
+	if actual == self.expected {
+		err = errors.New(fmt.Sprintf("expected `%v` not to be `%v`", actual, self.expected))
+	}
+	return
+}

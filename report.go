@@ -19,19 +19,18 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package main
+package specify
 
-import (
-	"os"
-	t "../src/_test/specify"
-)
-
-func makeError(s string) os.Error { return os.NewError(s) }
-
-func testRun(name string, block func(t.Runner)) (reporter t.ReporterSummary) {
-	runner := t.NewRunner()
-	runner.Describe(name, func() { block(runner) })
-	reporter = t.NewBasicReporter()
-	runner.Run(reporter)
-	return
+type report struct {
+	title string
+	err   error
+	loc   Location
 }
+
+func newReport(title string, err error, loc Location) report {
+	return report{title, err, loc}
+}
+
+func (self report) Title() string      { return self.title }
+func (self report) Error() error    { return self.err }
+func (self report) Location() Location { return self.loc }

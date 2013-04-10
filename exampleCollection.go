@@ -21,27 +21,44 @@ THE SOFTWARE.
 */
 package specify
 
-import (
-	"fmt"
-	"os"
-)
+import "regexp"
+import "container/list"
 
-type beMatcher struct {
-	expected interface{}
+type example interface {
+    Run(r Reporter, before BeforeBlock, after afterBlock)
+    Title() string
 }
 
-func makeBeMatcher(value interface{}) Matcher { return beMatcher{value} }
-
-func (self beMatcher) Should(actual interface{}) (error os.Error) {
-	if actual != self.expected {
-		error = os.NewError(fmt.Sprintf("expected `%v` to be `%v`", actual, self.expected))
-	}
-	return
+type exampleCollection struct {
+    examples *list.List
 }
 
-func (self beMatcher) ShouldNot(actual interface{}) (error os.Error) {
-	if actual == self.expected {
-		error = os.NewError(fmt.Sprintf("expected `%v` not to be `%v`", actual, self.expected))
-	}
-	return
+func makeExampleCollection() *exampleCollection {
+    return &exampleCollection{list.New()}
+}
+
+func (self *exampleCollection) Add(e example) { self.examples.PushBack(e) }
+
+func (self *exampleCollection) Init(runner *runner) {
+    for e := self.examples.Front(); e != nil; e = e.Next() {
+        if ex, ok := e.Value.(*complexExample); ok {
+            runner.currentExample = ex
+            ex.Init()
+        }
+    }
+}
+
+func (self *exampleCollection) Run(reporter Reporter, before BeforeBlock, after afterBlock, filter string) {
+    for e := self.examples.Front(); e != nil; e = e.Next() {
+        if ex, ok := e.Value.(example); ok {
+            runit := false
+            regex := regexp.MustCompile(filter)
+            if regex.Match([]byte(ex.Title())) {
+                runit = true
+            }
+            if runit {
+                ex.Run(reporter, before, after)
+            }
+        }
+    }
 }

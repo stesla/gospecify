@@ -21,47 +21,39 @@ THE SOFTWARE.
 */
 package specify
 
-type runner struct {
-	examples       *exampleCollection
-	currentExample *complexExample
-}
+import (
+    . "github.com/doun/gospecify"
+)
 
-type afterBlock struct {
-	f   AfterFunc
-	loc Location
-}
+func pass(Example) {}
 
-var emptyAfter = afterBlock{func(Context) {}, nil}
-var emptyBefore = func(Example) {}
+func init() {
+	Describe("After", func() {
+		It("should run the block after each test", func(e Example) {
+			ch := make(chan bool, 1)
+			testRun("", func(r Runner) {
+				r.It("should pass", pass)
+				r.After(func(Context) { ch <- true })
+			})
+			_, ok := <-ch
+			e.Value(ok).Should(Be(true))
+		})
 
-func makeRunner() *runner { return &runner{examples: makeExampleCollection()} }
+		It("should fail a test if the after has an error", func(e Example) {
+			reporter := testRun("", func(r Runner) {
+				r.It("should pass", pass)
+				r.After(func(c Context) { c.Error(makeError("boom")) })
+			})
+			e.Value(reporter).Should(HaveErrorAt("after_spec.go:46"))
+		})
 
-func (self *runner) After(f AfterFunc) {
-	if self.currentExample != nil {
-		block := afterBlock{f, newBlockLocation()}
-		self.currentExample.AddAfter(block)
-	}
-}
-
-func (self *runner) Before(block BeforeBlock) {
-	if self.currentExample != nil {
-		self.currentExample.AddBefore(block)
-	}
-}
-
-func (self *runner) Describe(name string, block ExampleGroupBlock) {
-	self.examples.Add(makeComplexExample(name, block))
-}
-
-func (self *runner) It(name string, block ExampleBlock) {
-	if self.currentExample != nil {
-		loc := newBlockLocation()
-		self.currentExample.Add(makeSimpleExample(self.currentExample, name, block, loc))
-	}
-}
-
-func (self *runner) Run(reporter Reporter) {
-	self.examples.Init(self)
-	self.examples.Run(reporter, emptyBefore, emptyAfter)
-	reporter.Finish()
+		It("should see the fields set in the example", func(e Example) {
+			ch := make(chan interface{}, 1)
+			testRun("", func(r Runner) {
+				r.It("should pass", func(e Example) { e.SetField("foo", "bar") })
+				r.After(func(c Context) { ch <- c.GetField("foo") })
+			})
+			e.Value(<-ch).Should(Be("bar"))
+		})
+	})
 }

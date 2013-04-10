@@ -19,26 +19,25 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package main
+package specify
 
 import (
-	. "specify"
-	t "./_test/specify"
+    . "github.com/doun/gospecify"
 )
 
 func init() {
 	Describe("Before", func() {
 		It("should run the block before each test", func(e Example) {
-			reporter := testRun("", func(r t.Runner) {
-				r.Before(func(e t.Example) { e.SetField("value", 42) })
+			reporter := testRun("", func(r Runner) {
+				r.Before(func(e Example) { e.SetField("value", 42) })
 
-				r.It("should set the value this time", func(e t.Example) {
-					e.Field("value").Should(t.Be(42))
+				r.It("should set the value this time", func(e Example) {
+					e.Field("value").Should(Be(42))
 					e.SetField("value", 24)
 				})
 
-				r.It("should set this time too", func(e t.Example) {
-					e.Field("value").Should(t.Be(42))
+				r.It("should set this time too", func(e Example) {
+					e.Field("value").Should(Be(42))
 					e.SetField("value", 24)
 				})
 			})
@@ -47,9 +46,9 @@ func init() {
 		})
 
 		It("should fail examples if assertions fail in the before block", func(e Example) {
-			reporter := testRun("", func(r t.Runner) {
-				r.Before(func(e t.Example) { e.Value(1).Should(Be(2)) })
-				r.It("should fail in before", func(t.Example) {})
+			reporter := testRun("", func(r Runner) {
+				r.Before(func(e Example) { e.Value(1).Should(Be(2)) })
+				r.It("should fail in before", func(Example) {})
 			})
 
 			e.Value(reporter).Should(HaveFailing(1))

@@ -19,42 +19,20 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package main
+package specify
 
 import (
-	. "specify"
-	t "./_test/specify"
+    //"fmt"
+    fmt "github.com/doun/terminal/color"
 )
 
-func pass(t.Example) {}
+type specdocFormat int
 
-func init() {
-	Describe("After", func() {
-		It("should run the block after each test", func(e Example) {
-			ch := make(chan bool, 1)
-			testRun("", func(r t.Runner) {
-				r.It("should pass", pass)
-				r.After(func(t.Context) { ch <- true })
-			})
-			_, ok := <-ch
-			e.Value(ok).Should(Be(true))
-		})
+func makeSpecdocReporter() ReporterSummary { return makeOutputReporter(specdocFormat(0)) }
 
-		It("should fail a test if the after has an error", func(e Example) {
-			reporter := testRun("", func(r t.Runner) {
-				r.It("should pass", pass)
-				r.After(func(c t.Context) { c.Error(makeError("boom")) })
-			})
-			e.Value(reporter).Should(HaveErrorAt("after_spec.go:46"))
-		})
-
-		It("should see the fields set in the example", func(e Example) {
-			ch := make(chan interface{}, 1)
-			testRun("", func(r t.Runner) {
-				r.It("should pass", func(e t.Example) { e.SetField("foo", "bar") })
-				r.After(func(c t.Context) { ch <- c.GetField("foo") })
-			})
-			e.Value(<-ch).Should(Be("bar"))
-		})
-	})
+func (specdocFormat) Error(r Report) { fmt.Printf("- @{r}%s (ERROR)\n", r.Title()) }
+func (specdocFormat) Fail(r Report)  { fmt.Printf("- @{r}%s (FAILED)\n", r.Title()) }
+func (specdocFormat) Pass(r Report)  { fmt.Printf("- @g%s\n", r.Title()) }
+func (specdocFormat) Pending(r Report) {
+    fmt.Printf("- @y%s (pending:%v)\n", r.Title(), r.Error())
 }

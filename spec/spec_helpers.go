@@ -22,16 +22,16 @@ THE SOFTWARE.
 package specify
 
 import (
-	"fmt"
+	"errors"
+    . "github.com/doun/gospecify"
 )
 
-type specdocFormat int
+func makeError(s string) error { return errors.New(s) }
 
-func makeSpecdocReporter() ReporterSummary { return makeOutputReporter(specdocFormat(0)) }
-
-func (specdocFormat) Error(r Report) { fmt.Printf("- %s (ERROR)\n", r.Title()) }
-func (specdocFormat) Fail(r Report)  { fmt.Printf("- %s (FAILED)\n", r.Title()) }
-func (specdocFormat) Pass(r Report)  { fmt.Printf("- %s\n", r.Title()) }
-func (specdocFormat) Pending(r Report) {
-	fmt.Printf("- %s (Not yet implemented)\n", r.Title())
+func testRun(name string, block func(Runner)) (reporter ReporterSummary) {
+	runner := NewRunner()
+	runner.Describe(name, func() { block(runner) })
+	reporter = NewBasicReporter()
+	runner.Run(reporter,"^.*$")
+	return
 }

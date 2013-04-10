@@ -20,19 +20,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 package specify
+import "fmt"
 
-import "os"
-
-type report struct {
-	title string
-	err   os.Error
-	loc   Location
+type complexExample struct {
+    name        string
+    afterBlock  afterBlock
+    beforeBlock BeforeBlock
+    block       ExampleGroupBlock
+    *exampleCollection
 }
 
-func newReport(title string, err os.Error, loc Location) report {
-	return report{title, err, loc}
+func makeComplexExample(name string, block ExampleGroupBlock) *complexExample {
+    return &complexExample{name, emptyAfter, emptyBefore, block, makeExampleCollection()}
 }
 
-func (self report) Title() string      { return self.title }
-func (self report) Error() os.Error    { return self.err }
-func (self report) Location() Location { return self.loc }
+func (self *complexExample) AddBefore(block BeforeBlock) {
+    self.beforeBlock = block
+}
+
+func (self *complexExample) Title() string {
+    return self.name
+}
+
+func (self *complexExample) AddAfter(block afterBlock) {
+    self.afterBlock = block
+}
+
+func (self *complexExample) Init() { self.block() }
+func (self *complexExample) Run(reporter Reporter, _ BeforeBlock, _ afterBlock) {
+    /* TODO: Nested describes get weird with before blocks */
+    fmt.Println(self.Title())
+    self.exampleCollection.Run(reporter, self.beforeBlock, self.afterBlock, "^.*$")
+}
