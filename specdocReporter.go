@@ -30,7 +30,7 @@ type specdocFormat int
 
 func makeSpecdocReporter() ReporterSummary { return makeOutputReporter(specdocFormat(0)) }
 
-func (specdocFormat) Error(r Report) { fmt.Printf("- @{rW}%s (ERROR)\n", r.Title()) }
+func (specdocFormat) Error(r Report) { fmt.Printf("- @{r}%s (ERROR)\n", r.Title()) }
 func (specdocFormat) Fail(r Report)  { fmt.Printf("- @{r}%s (FAILED)\n", r.Title()) }
 func (specdocFormat) Pass(r Report)  { fmt.Printf("- @g%s\n", r.Title()) }
 func (specdocFormat) Pending(r Report) {
