@@ -65,16 +65,16 @@ func (self *outputReporter) Finish() {
     if errs+fails+pends > 0 {
         fmt.Printf("@{g}Passing:%v", self.PassingCount())
     } else {
-        fmt.Printf("@{wG}WOW, All pass!\n")
+        fmt.Printf("@{wG}WOW, All pass! \n")
     }
     if fails > 0 {
-        fmt.Printf("@{r}Failing: %v", fails)
+        fmt.Printf("\t@{r}Failing: %v", fails)
     }
     if pends > 0 {
-        fmt.Printf("@{y}Pending: %v", pends)
+        fmt.Printf("\t@{y}Pending: %v", pends)
     }
     if errs > 0 {
-        fmt.Printf("@{rW}Errors: %v \n")
+        fmt.Printf("\t@{rW}Errors: %v \n")
     }
     fmt.Printf("\r")
 
